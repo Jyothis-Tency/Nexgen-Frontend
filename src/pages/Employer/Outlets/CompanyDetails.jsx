@@ -6,7 +6,7 @@ import {
   Grid,
   Avatar,
 } from "@mui/material";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function CompanyDetails() {
   const aboutRef = useRef(null);
@@ -20,6 +20,12 @@ export default function CompanyDetails() {
       ref.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  useEffect(() => {
+    async function getEmployerData() {
+      
+    }
+  }, []);
 
   return (
     <Container maxWidth="lg" className="py-8">
