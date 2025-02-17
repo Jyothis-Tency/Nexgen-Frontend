@@ -223,9 +223,9 @@ export default function ProfilePage() {
 
   return (
     <Box sx={{ bgcolor: '#FFFFFF', minHeight: '100vh' }}>
-      <Navbar />
+      {/* <Navbar /> */}
 
-      <Container maxWidth="xl" sx={{ py: 2 }}>
+      <Container className='mt-14' maxWidth="xl" sx={{ py: 2 }}>
         <StyledCard sx={{ mx: 1 }}>
           <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
             {/* Profile Header */}

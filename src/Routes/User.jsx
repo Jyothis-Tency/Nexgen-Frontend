@@ -6,13 +6,15 @@ import RegisterOtp from "./../pages/RegisterOtp";
 import SignupPage from "./../pages/SignUp";
 import Profile from "../pages/Profile";
 import JobApplication from "../pages/JobApplication";
-import Home from "../pages/Home";
+import Home from "../pages/User/Outlets/Home";
 import ApplicationSubmitted from "../pages/ApplicationSubmitted";
-import Home2 from "../pages/Home2";
+// import Home2 from "../pages/Home2";
 import AllJobsPage from "../pages/AllJobs";
 import JobDetailPage from "../pages/JobDetails";
 import ListingTable from "../components/common/table";
-import Home3 from "@/pages/Home3";
+// import Home3 from "@/pages/Home3";
+import HomeLayout from "@/pages/User/Layout/HomeLayout";
+
 
 const usersData = [
   {
@@ -156,31 +158,33 @@ const handleToggleActive = (id) => {
 function User() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/home" element={<Home3 />} />
-      <Route path="/home3" element={<Home3 />} />
+       {/* <Route path="/" element={<Home3 />} /> */}
+       {/* <Route path="/home" element={<Home3 />} /> */}
+       {/* <Route path="/home3" element={<Home3 />} /> */}
       <Route path="/sign-up" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/otp-verification" element={<RegisterOtp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/profile" element={<Profile />} />
+      
       <Route path="/job-application/:id" element={<JobApplication />} />
       <Route path="/application-submitted" element={<ApplicationSubmitted />} />
-      <Route path="/all-jobs" element={<AllJobsPage />} />
+      
       <Route path="/job-details/:id" element={<JobDetailPage />} />
-      <Route
-        path="/table"
-        element={
-          <ListingTable
-            users={usersData}
-            columns={columns}
-            rowsPerPage={rows}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onToggleActive={handleToggleActive}
-          />
-        }
+      <Route path="/table" element={<ListingTable
+          users={usersData}
+          columns={columns}
+          rowsPerPage={rows}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onToggleActive={handleToggleActive}
+      />}
       />
+
+      <Route path="/" element={<HomeLayout/>} >
+          <Route path="/" element={<Home/>} />
+          <Route path="/all-jobs" element={<AllJobsPage />} />
+          <Route path="/profile" element={<Profile />} />
+      </Route>
     </Routes>
   );
 }

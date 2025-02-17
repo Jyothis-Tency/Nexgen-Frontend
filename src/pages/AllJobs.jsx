@@ -1,28 +1,53 @@
-import React, { useState } from 'react';
-import { FaSearch } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import { FaSearch } from "react-icons/fa";
 
-import JobCard from '../components/User/JobCard';
-import Navbar from '../components/User/Navbar';
+import JobCard from "../components/User/JobCard";
+import Navbar from "../components/User/Navbar";
+import { toast } from "sonner";
+import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
 
 const AllJobsPage = () => {
   const mockJobs = Array(8).fill({});
-  const [searchTerm, setSearchTerm] = useState('');
-  const [location, setLocation] = useState('');
-  const [jobType, setJobType] = useState('');
-  const [experienceLevel, setExperienceLevel] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [location, setLocation] = useState("");
+  const [jobType, setJobType] = useState("");
+  const [experienceLevel, setExperienceLevel] = useState("");
+
+  const [jobs, setJobs] = useState([]);
+
+  
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await userAxiosInstance.get("/getJobPosts");
+
+        console.log("response",res);
+
+        setJobs(res.data);
+      } catch (error) {
+        console.error("error",error);
+        toast.warning(error?.response?.data?.message || "An error occured");
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <Navbar />
+      {/* <Navbar /> */}
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
+      <div className="container mx-auto px-4 py-8 ">
+        <div className="flex flex-col md:flex-row gap-8 mt-14">
           {/* Filters Section */}
           <div className="w-full md:w-1/4 bg-white p-4 rounded-md shadow">
             <h2 className="text-xl font-semibold mb-6">Filters</h2>
             <div className="space-y-6">
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Location</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Location
+                </label>
                 <select
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={location}
@@ -39,7 +64,9 @@ const AllJobsPage = () => {
               </div>
 
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Job Type</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Job Type
+                </label>
                 <select
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={jobType}
@@ -53,7 +80,9 @@ const AllJobsPage = () => {
               </div>
 
               <div>
-                <label className="block text-gray-700 font-medium mb-2">Experience Level</label>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Experience Level
+                </label>
                 <select
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={experienceLevel}
@@ -95,11 +124,19 @@ const AllJobsPage = () => {
             </div>
 
             {/* Job Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mockJobs.map((_, index) => (
-                <JobCard key={index} />
-              ))}
-            </div>
+            {jobs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {jobs.map((job, index) => (
+                  <JobCard key={index} />
+                ))}
+              </div>
+            ) : (
+              <div className="w-full md:h-full h-28 flex items-center justify-center">
+                <h1 className="text-xl md:text-2xl font-bold">
+                  No job available
+                </h1>
+              </div>
+            )}
           </div>
         </div>
       </div>

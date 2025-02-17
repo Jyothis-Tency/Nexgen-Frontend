@@ -3,21 +3,41 @@ import { TextField, InputAdornment, IconButton, Button } from "@mui/material";
 import { Search, Home, Work, Person } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { logout } from "@/redux/slices/userSlice";
 
 // const Navbar = () => {
 //   const navigate = useNavigate();
 
 import { useState } from "react";
 import { Menu, X } from "lucide-react"; // Icons for the mobile menu toggle
+import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
+import { toast } from "sonner";
 
-const Navbar = (  ) => {
+const Navbar = () => {
   const user = useSelector((state) => state.user.seekerInfo);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await userAxiosInstance.post("/logout");
+      console.log('logout response',response)
+      if (response.status === 200) {
+        dispatch(logout());
+        toast.success("Logout!!");
+        navigate('/login')
+      }
+    } catch (err) {
+      console.error('error',err)
+      toast.error("Failed to login")
+    }
   };
 
   return (
@@ -67,6 +87,14 @@ const Navbar = (  ) => {
               <span>Login/Sign Up</span>
             )}
           </div>
+          {Object.keys(user).length > 0 && (
+            <div
+              className="flex items-center space-x-1 cursor-pointer text-primary hover:text-blue-300"
+              onClick={handleLogout}
+            >
+              Logout
+            </div>
+          )}
         </div>
       </div>
 

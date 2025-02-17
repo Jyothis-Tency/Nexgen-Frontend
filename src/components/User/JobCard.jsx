@@ -33,7 +33,7 @@ const JobCard = ({title  ,location , salary , date , id }) => {
         </div>
         <div className="flex items-center space-x-2 text-gray-600 text-sm">
           <span className="material-icons" aria-hidden="true"><FaIndianRupeeSign /></span>
-          <p>{salary.join(' - ')}</p>
+          <p>{salary?.join(' - ')}</p>
         </div>
        
       </section>

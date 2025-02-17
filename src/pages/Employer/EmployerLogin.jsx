@@ -45,8 +45,10 @@ const EmployerLogin = () => {
         if(loginResult.status === 200) {
           toast.success("Login successfull")
           setTimeout(() => {
-            navigate('/employer')
+            navigate('/employer/dashboard')
           }, 1000);
+        } else {
+          toast.error()
         }
       } catch (err) {
         toast.error(err.message || "An error occurred");

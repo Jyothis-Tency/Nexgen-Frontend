@@ -50,13 +50,13 @@ const LoginPage = () => {
           toast.success('Login successful!')
         }
         setTimeout(() => {
-          navigate('/home')
+          navigate('/')
         }, 1500)
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error: {error}</p>;
       } catch (err) {
         console.log('Error in user login component after login: ', err)
-        toast.error(err.response?.data?.message || "An error occurred");
+        toast.error(err?.message || "An error occurred");
       }
     },
   });
