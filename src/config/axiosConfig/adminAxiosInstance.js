@@ -3,7 +3,6 @@ const env = import.meta.env;
 
 const adminAxiosInstance = axios.create({
   baseURL: `https://api.techpath.in/admin`,
-
   withCredentials: true,
 });
 

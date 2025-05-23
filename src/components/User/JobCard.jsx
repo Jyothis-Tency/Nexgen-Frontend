@@ -137,7 +137,7 @@ const JobCard = ({ job, layout }) => {
     }`}
   >
     <button
-      className="bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg 
+      className="bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg 
         hover:bg-white border hover:border-blue-500 hover:text-blue-500 transition w-full sm:w-auto"
       aria-label="View job details"
       onClick={jobDetailNavigation}
