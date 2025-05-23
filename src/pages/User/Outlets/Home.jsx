@@ -47,9 +47,24 @@ export default function Home() {
   const fetchAdBanners = async () => {
     try {
       const { data } = await adminAxiosInstance.get("/all-banners");
-      setAdBanners(data.banners || []);
+      // The response structure is { message, data } where data contains the banner array
+      if (data && data.data) {
+        // Map the backend data structure to match what AdBannerCarousel expects
+        const mappedBanners = data.data
+          .filter((banner) => banner.active) // Only show active banners
+          .map((banner) => ({
+            id: banner._id,
+            imageUrl: banner.image, // This is the signed URL from S3
+            link: banner.link || "#", // Default to "#" if no link is provided
+            altText: banner.fileName || "Advertisement Banner",
+          }));
+        setAdBanners(mappedBanners);
+        console.log("Banners loaded:", mappedBanners.length);
+      } else {
+        setAdBanners([]);
+      }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching banners:", error);
       // Fallback to empty array if fetch fails
       setAdBanners([]);
     }

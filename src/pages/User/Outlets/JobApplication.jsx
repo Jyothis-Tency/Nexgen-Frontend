@@ -75,10 +75,7 @@ const JobApplication = () => {
       if (!values.phone) {
         errors.phone = "Phone number is required";
       }
-      if (!values.resume) {
-        errors.resume = "Resume is required";
-      }
-      return errors;
+      return errors; // Removed resume validation
     },
     onSubmit: async (values) => {
       try {
@@ -90,7 +87,7 @@ const JobApplication = () => {
           email: values?.email,
           location: values?.district,
           phone: values?.phone,
-          resume: values?.resume,
+          resume: values?.resume, // Can be null
           coverLetter: values?.coverLetter,
           employerId: values?.employerId
         };
@@ -192,7 +189,7 @@ const JobApplication = () => {
                     htmlFor="phone"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Phone
+                    Phone*
                   </label>
                   <div className="flex">
                     <Autocomplete
@@ -320,7 +317,7 @@ const JobApplication = () => {
                 htmlFor="resume"
                 className="block text-sm font-medium text-gray-700"
               >
-                Upload Resume*
+                Upload Resume (optional)
               </label>
               <label
                 htmlFor="resume"
@@ -342,9 +339,6 @@ const JobApplication = () => {
                   Uploaded file: <strong>{formik.values.resume.name}</strong>
                 </div>
               )}
-              {formik.errors.resume && (
-                <span className="text-red-500 text-sm">{formik.errors.resume}</span>
-              )}
             </motion.div>
 
             {/* Additional file Upload */}
@@ -361,7 +355,7 @@ const JobApplication = () => {
               >
                 <FaUpload className="h-5 w-5 text-gray-400" />
                 <span className="text-sm text-gray-600">Browse file</span>
-                </label>
+              </label>
               <input
                 type="file"
                 id="additionalFile"
@@ -411,4 +405,4 @@ const JobApplication = () => {
   );
 };
 
-export default JobApplication;  
+export default JobApplication;
