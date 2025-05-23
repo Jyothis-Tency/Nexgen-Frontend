@@ -7,15 +7,15 @@ import useRequest from "../hooks/useRequestUser";
 import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
 
 const RegisterOtp = () => {
-  const OTP_LENGTH = 6;
+  const OTP_LENGTH = 4;
   const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(""));
   const inputRefs = useRef([]);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const email = location.state?.email;
+  const email = location.state?.email || localStorage.getItem("email");
+  console.log("email",email);
   const { data, loading, error, sendRequest } = useRequest();
-
 
   useEffect(() => {
     if (inputRefs.current[0]) {
@@ -57,25 +57,47 @@ const RegisterOtp = () => {
         otp: joinedOtp,
       };
       console.log(payload);
-     
-      const {data} = await userAxiosInstance.post('/verify-otp' , payload)
-      
-    console.log(data);
-    if(data.status) {
-      localStorage.removeItem('email')
-      toast.success('Registration successful')
-      navigate('/login')
-    }
-    
+
+      const { data } = await userAxiosInstance.post("/verify-otp", payload);
+
+      console.log(data);
+      if (data.status) {
+        localStorage.removeItem("email");
+        toast.success("Registration successful");
+        navigate("/login");
+      }
 
       if (loading) return <p>Loading...</p>;
       if (error) return <p>Error: {error}</p>;
     } catch (err) {
       console.log(err.resposne.data.message);
-      
+
       toast.error(err.resposne.data.message || "An error occurred");
     }
   };
+
+  const resendOtp = async (email) => {
+    try {
+      const payload = {
+        email,
+      };
+      const { data } = await userAxiosInstance.post(
+        "/resend-signup-otp",
+        payload
+      );
+      console.log(data);
+      if (data.status) {
+        toast.success("OTP resent successfully");
+      }
+      if (loading) return <p>Loading...</p>;
+      if (error) return <p>Error: {error}</p>;
+    }
+    catch (err) {
+      console.log(err.resposne.data.message);
+      toast.error(err.resposne.data.message || "An error occurred");
+    }
+  }
+
 
   return (
     <div className="flex flex-col lg:flex-row h-screen">
@@ -97,7 +119,7 @@ const RegisterOtp = () => {
       <div className="lg:w-1/2 w-full bg-white flex flex-col justify-center items-center p-10 pt-20 lg:p-10 font-sans">
         <div className="w-full max-w-md">
           <h1 className="text-2xl font-bold text-primary mb-8 text-center lg:text-left">
-          Techpath
+            Techpath
           </h1>
           <h2 className="text-3xl font-bold mb-4 text-center lg:text-left">
             Verify your email
@@ -141,7 +163,7 @@ const RegisterOtp = () => {
 
           <div className="text-center mt-4 flex justify-center gap-3">
             <p className="text-gray-600">Didn't receive the code?</p>
-            <button className="text-blue-600 hover:text-blue-700 text-sm hover:underline">
+            <button className="text-blue-600 hover:text-blue-700 text-sm hover:underline" onClick={() => resendOtp(email)}>
               Resend Code
             </button>
           </div>
