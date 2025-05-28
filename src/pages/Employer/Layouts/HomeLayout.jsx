@@ -7,7 +7,7 @@ const HomeLayout = () => {
   return (
     <div className="relative bg-[#f7f6f9] h-full min-h-screen font-[sans-serif]">
       <div className="flex items-start">
-        <section className="main-content w-full  px-10">
+        <section className="main-content w-full lg:px-10 ">
           <Header />
           <div className="lg:ml-[250px]">
             <Outlet />
