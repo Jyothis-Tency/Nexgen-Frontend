@@ -24,14 +24,14 @@ export default function ApplicationConfirmation() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
-      className="min-h-screen bg-background"
+      className="w-full max-w-screen-md mx-auto px-4 pt-24 overflow-x-hidden"
     >
       {/* Main Content */}
       <motion.main
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="container max-w-2xl mx-auto py-12 px-4"
+        className="container max-w-2xl mx-auto py-24 px-8"
       >
         <div className="space-y-8 text-center">
           {/* Header Section */}

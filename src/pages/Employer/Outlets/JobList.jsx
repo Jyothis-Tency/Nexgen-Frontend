@@ -280,7 +280,7 @@ function JobList() {
               animate="visible"
               exit="exit"
             >
-              <DialogContent className="w-[1000px]">
+              <DialogContent className="md:w-[1000px] w-[350px] rounded-md">
                 <DialogHeader>
                   <DialogTitle>Confirm Deletion</DialogTitle>
                 </DialogHeader>

@@ -81,19 +81,7 @@ const RegisterOtp = () => {
 
   return (
     <div className="flex flex-col lg:flex-row h-screen">
-      {/* Left Section */}
-      <div className="lg:w-1/2 w-full bg-primary flex flex-col justify-center items-center text-center text-white p-6 lg:p-10">
-        <div className="max-w-md">
-          <GrapeAnimation className="sm:hidden" />
-          <h2 className="text-2xl lg:text-3xl font-semibold mb-4">
-            Find Jobs Tailored for Mobile Technicians
-          </h2>
-          <p className="text-base lg:text-lg text-gray-200 mb-4">
-            Discover the best opportunities and connect with employers who value
-            your skills.
-          </p>
-        </div>
-      </div>
+      
 
       {/* Right Section */}
       <div className="lg:w-1/2 w-full bg-white flex flex-col justify-center items-center p-6 lg:p-10 font-sans">
@@ -109,7 +97,7 @@ const RegisterOtp = () => {
             . Please enter it below to verify your account.
           </p>
           <form onSubmit={handleSubmit}>
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center md:gap-3 gap-1">
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -153,6 +141,20 @@ const RegisterOtp = () => {
             <Link to="/login" className="text-blue-600 hover:underline">
               Login
             </Link>
+          </p>
+        </div>
+      </div>
+
+      {/* Left Section */}
+      <div className="lg:w-1/2 w-full bg-primary flex flex-col justify-center items-center text-center text-white p-6 lg:p-10">
+        <div className="max-w-md">
+          <GrapeAnimation className="sm:hidden" />
+          <h2 className="text-2xl lg:text-3xl font-semibold mb-4">
+            Find Jobs Tailored for Mobile Technicians
+          </h2>
+          <p className="text-base lg:text-lg text-gray-200 mb-4">
+            Discover the best opportunities and connect with employers who value
+            your skills.
           </p>
         </div>
       </div>
