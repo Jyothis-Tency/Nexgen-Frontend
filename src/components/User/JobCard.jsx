@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { WhatsApp } from "@mui/icons-material";
 
 // import {
 //   Card,
@@ -27,7 +28,7 @@ const JobCard = ({ job, layout }) => {
   const jobDetailNavigation = () => {
     navigate(`/job-details/${job._id}`);
   };
-
+  console.log("Job Card Props", job.employer);
   const handleApplyJob = (job) => {
     navigate(`/job-application/${job._id}`, {
       state: {
@@ -39,6 +40,9 @@ const JobCard = ({ job, layout }) => {
       }
     });
   };
+
+  console.log("Job Card Rendered", job);
+  
 
   return (
     <article
@@ -101,7 +105,13 @@ const JobCard = ({ job, layout }) => {
         </p>
 
         {/* Buttons centered below */}
-        <div className={`${layout === "list" ? "w-full md:w-fit flex flex-col sm:flex-row items-center justify-center gap-2" : "w-full flex flex-col sm:flex-row items-center justify-center gap-2"}`}>
+        <div
+          className={`${
+            layout === "list"
+              ? "w-full md:w-fit flex flex-col sm:flex-row items-center justify-center gap-2"
+              : "w-full flex flex-col sm:flex-row items-center justify-center gap-2"
+          }`}
+        >
           {/* Apply / Applied Button */}
           <button
             className={`text-sm font-medium px-4 py-2 rounded-lg border transition w-full sm:w-auto
@@ -112,7 +122,9 @@ const JobCard = ({ job, layout }) => {
         }`}
             disabled={job.alreadyApplied}
             aria-label={job.alreadyApplied ? "Already applied" : "Apply to job"}
-            onClick={!job.alreadyApplied ? ()=> handleApplyJob(job) : undefined}
+            onClick={
+              !job.alreadyApplied ? () => handleApplyJob(job) : undefined
+            }
           >
             {job.alreadyApplied ? "Applied" : "Apply"}
           </button>
@@ -126,6 +138,25 @@ const JobCard = ({ job, layout }) => {
           >
             Job Details
           </button>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(
+              `Check out this job: ${job.jobTitle} at ${job.employer.name}. Here's the link: https://techpath.in/job-details/${job._id}`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-600 hover:text-green-700 transition-colors flex items-center gap-1"
+          >
+            
+            <WhatsApp
+              style={{
+                color: "#25D366",
+                fontSize: 38,
+                cursor: "pointer",
+              }}
+              titleAccess="Share on WhatsApp"
+            />
+            Share
+          </a>
         </div>
       </footer>
 

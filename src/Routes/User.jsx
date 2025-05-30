@@ -5,6 +5,7 @@ import ForgotPassword from "./../pages/ForgotPassword";
 import RegisterOtp from "./../pages/RegisterOtp";
 import SignupPage from "./../pages/SignUp";
 import Profile from "../pages/User/Outlets/Profile";
+import CompleteProfile from "../pages/User/Outlets/CompleteProfile";
 import JobApplication from "../pages/User/Outlets/JobApplication";
 import Home from "../pages/User/Outlets/Home";
 import ApplicationSubmitted from "../pages/User/Outlets/ApplicationSubmitted";
@@ -30,6 +31,8 @@ function User() {
 
       <Route element={<HomeLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/complete-profile" element={<UserProtectedRoute><CompleteProfile /></UserProtectedRoute>} />
+        {/* User Protected Routes */}
         <Route path="/all-jobs" element={<AllJobsPage />} />
         <Route path="/job-details/:id" element={<JobDetailPage />} />
         <Route path="/job-application/:id" element={<UserProtectedRoute><JobApplication /></UserProtectedRoute>} />
