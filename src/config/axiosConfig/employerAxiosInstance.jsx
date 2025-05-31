@@ -2,7 +2,7 @@ import axios from "axios";
 const env = import.meta.env;
 
 const employerAxiosInstance = axios.create({
-  baseURL: `${env.VITE_BACKEND_URL}/employer`,
+  baseURL: `https://api.techpath.in/employer`,
   withCredentials: true,
 });
 
