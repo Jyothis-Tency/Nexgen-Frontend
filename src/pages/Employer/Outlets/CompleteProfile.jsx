@@ -216,415 +216,252 @@ export default function EmployerCompleteProfile() {
     );
   };
 
-  // Updated progress calculation - only count required fields
+  // Updated progress calculation - count all possible fields for 100% completion
   const calculateProgress = (values) => {
     let completed = 0;
-    const total = 4; // Only count required fields
+    let total = 0;
 
-    // Required personal details (4 points)
-    if (values.name) completed++;
-    if (values.email) completed++;
-    if (values.phone) completed++;
-    if (values.location) completed++;
+    // Personal Details (4 fields) - Required
+    const personalFields = ["name", "email", "phone", "location"];
+    personalFields.forEach((field) => {
+      total++;
+      if (values[field]) completed++;
+    });
 
-    return (completed / total) * 100;
+    // Personal About (1 field) - Optional
+    total++;
+    if (values.about) completed++;
+
+    // Profile Image (1 field) - Optional
+    total++;
+    if (profileImage) completed++;
+
+    // Company Details (6 fields) - Optional
+    const companyFields = [
+      "companyName",
+      "companyEmail",
+      "companyPhone",
+      "companyAddress",
+      "companyAbout",
+      "webSite",
+    ];
+    companyFields.forEach((field) => {
+      total++;
+      if (values[field]) completed++;
+    });
+
+    // Company Assets (2 fields) - Optional
+    total++;
+    if (companyLogo) completed++;
+    total++;
+    if (companyCertificate) completed++;
+
+    // Social Links (3 fields) - Optional
+    const socialFields = ["linkedin", "twitter", "facebook"];
+    socialFields.forEach((field) => {
+      total++;
+      if (values.socialLinks?.[field]) completed++;
+    });
+
+    return Math.round((completed / total) * 100);
   };
 
   // Enhanced form submission with relaxed validation
-//   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
-//     console.log("=== EMPLOYER PROFILE SUBMISSION STARTED ===");
-//     console.log("Form values:", values);
-//     console.log("Profile image:", profileImage?.name);
-//     console.log("Company logo:", companyLogo?.name);
-//     console.log("Company certificate:", companyCertificate?.name);
-//     console.log("Employer ID:", employerId);
+  const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
+    console.log("=== EMPLOYER PROFILE SUBMISSION STARTED ===");
+    console.log("Form values:", values);
+    console.log("Profile image:", profileImage?.name);
+    console.log("Company logo:", companyLogo?.name);
+    console.log("Company certificate:", companyCertificate?.name);
+    console.log("Employer ID:", employerId);
 
-//     // Clear previous errors
-//     setFormErrors({});
+    // Clear previous errors
+    setFormErrors({});
 
-//     // Only validate required personal fields
-//     if (!values.name || !values.email || !values.phone || !values.location) {
-//       const error =
-//         "Personal information (name, email, phone, location) is required";
-//       setFormErrors({ submit: error });
-//       toast.error(error);
-//       setSubmitting(false);
-//       return;
-//     }
+    // Only validate required personal fields
+    if (!values.name || !values.email || !values.phone || !values.location) {
+      const error =
+        "Personal information (name, email, phone, location) is required";
+      setFormErrors({ submit: error });
+      toast.error(error);
+      setSubmitting(false);
+      return;
+    }
 
-//     // Validate employer ID
-//     if (!employerId) {
-//       const error = "Employer ID is missing. Please log in again.";
-//       setFormErrors({ submit: error });
-//       toast.error(error);
-//       setSubmitting(false);
-//       return;
-//     }
+    // Validate employer ID
+    if (!employerId) {
+      const error = "Employer ID is missing. Please log in again.";
+      setFormErrors({ submit: error });
+      toast.error(error);
+      setSubmitting(false);
+      return;
+    }
 
-//     setIsSubmitting(true);
+    setIsSubmitting(true);
 
-//     try {
-//       // Create FormData for multipart/form-data submission
-//       const formData = new FormData();
+    try {
+      // Create FormData for multipart/form-data submission
+      const formData = new FormData();
 
-//       // Add employer profile data
-//       const employerProfileData = {
-//         employerId: employerId,
-//         name: values.name,
-//         email: values.email,
-//         phone: values.phone,
-//         location: values.location,
-//         about: values.about || "",
-//         isProfileComplete: true,
-//       };
+      // Add employer profile data
+      const employerProfileData = {
+        employerId: employerId,
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        location: values.location,
+        about: values.about || "",
+        isProfileComplete: true,
+      };
 
-//       // Add company data only if provided
-//       const companyData = {};
-//       if (values.companyName) companyData.companyName = values.companyName;
-//       if (values.companyEmail) companyData.email = values.companyEmail;
-//       if (values.companyPhone) companyData.phone = values.companyPhone;
-//       if (values.companyAddress) companyData.address = values.companyAddress;
-//       if (values.companyAbout) companyData.about = values.companyAbout;
-//       if (values.webSite) companyData.webSite = values.webSite;
-//       if (values.socialLinks) companyData.socialLinks = values.socialLinks;
+      // Add company data only if provided
+      const companyData = {};
+      if (values.companyName) companyData.companyName = values.companyName;
+      if (values.companyEmail) companyData.email = values.companyEmail;
+      if (values.companyPhone) companyData.phone = values.companyPhone;
+      if (values.companyAddress) companyData.address = values.companyAddress;
+      if (values.companyAbout) companyData.about = values.companyAbout;
+      if (values.webSite) companyData.webSite = values.webSite;
+      if (values.socialLinks) companyData.socialLinks = values.socialLinks;
 
-//       console.log("Employer profile data:", employerProfileData);
-//       console.log("Company data:", companyData);
+      console.log("Employer profile data:", employerProfileData);
+      console.log("Company data:", companyData);
 
-//       formData.append(
-//         "employerProfileData",
-//         JSON.stringify(employerProfileData)
-//       );
-//       formData.append("companyData", JSON.stringify(companyData));
+      formData.append(
+        "employerProfileData",
+        JSON.stringify(employerProfileData)
+      );
+      formData.append("companyData", JSON.stringify(companyData));
 
-//       // Add files with metadata
-//       const fileMetadata = {};
+      // Add files with metadata
+      const fileMetadata = {};
 
-//       if (profileImage) {
-//         formData.append("files", profileImage);
-//         fileMetadata.profileImage = profileImage.name;
-//         console.log("Added profile image:", profileImage.name);
-//       }
-
-//       if (companyLogo) {
-//         formData.append("files", companyLogo);
-//         fileMetadata.companyLogo = companyLogo.name;
-//         console.log("Added company logo:", companyLogo.name);
-//       }
-
-//       if (companyCertificate) {
-//         formData.append("files", companyCertificate);
-//         fileMetadata.companyCertificate = companyCertificate.name;
-//         console.log("Added company certificate:", companyCertificate.name);
-//       }
-
-//       // Add file metadata if we have files
-//       if (Object.keys(fileMetadata).length > 0) {
-//         formData.append("fileMetadata", JSON.stringify(fileMetadata));
-//         console.log("File metadata:", fileMetadata);
-//       }
-
-//       // Log FormData contents for debugging
-//       console.log("=== FORM DATA CONTENTS ===");
-//       for (const [key, value] of formData.entries()) {
-//         if (value instanceof File) {
-//           console.log(
-//             `${key}: File - ${value.name} (${value.type}, ${value.size} bytes)`
-//           );
-//         } else {
-//           console.log(`${key}: ${value}`);
-//         }
-//       }
-
-//       const apiUrl = `/complete-employer-profile/${employerId}`;
-//       console.log("Making API request to:", apiUrl);
-
-//       // Submit to backend
-//       const response = await employerAxiosInstance.post(apiUrl, formData, {
-//         headers: {
-//           "Content-Type": "multipart/form-data",
-//         },
-//         timeout: 30000, // 30 second timeout
-//         onUploadProgress: (progressEvent) => {
-//           const percentCompleted = Math.round(
-//             (progressEvent.loaded * 100) / progressEvent.total
-//           );
-//           console.log(`Upload progress: ${percentCompleted}%`);
-//         },
-//       });
-
-//       console.log("=== API RESPONSE ===");
-//       console.log("Response status:", response.status);
-//       console.log("Response data:", response.data);
-
-//       if (response.data.success) {
-//         toast.success("Employer profile completed successfully!");
-
-//         // Clean up preview URLs
-//         if (profileImagePreview) {
-//           URL.revokeObjectURL(profileImagePreview);
-//         }
-//         if (companyLogoPreview) {
-//           URL.revokeObjectURL(companyLogoPreview);
-//         }
-
-//         // Navigate to dashboard after a short delay
-//         setTimeout(() => {
-//           navigate("/employer/dashboard");
-//         }, 1500);
-//       } else {
-//         throw new Error(
-//           response.data.message || "Failed to complete employer profile"
-//         );
-//       }
-//     } catch (error) {
-//       console.error("=== ERROR DETAILS ===");
-//       console.error("Error object:", error);
-
-//       if (error.response) {
-//         console.error("Response status:", error.response.status);
-//         console.error("Response headers:", error.response.headers);
-//         console.error("Response data:", error.response.data);
-
-//         // Handle specific error cases
-//         if (error.response.status === 400) {
-//           const errorData = error.response.data;
-//           if (errorData.errors) {
-//             // Handle validation errors
-//             Object.keys(errorData.errors).forEach((field) => {
-//               setFieldError(field, errorData.errors[field]);
-//             });
-//           }
-//         } else if (error.response.status === 401) {
-//           toast.error("Authentication failed. Please log in again.");
-//           navigate("/employer/login");
-//           return;
-//         } else if (error.response.status === 413) {
-//           toast.error("File size too large. Please upload smaller files.");
-//         } else if (error.response.status === 500) {
-//           toast.error("Server error. Please try again later.");
-//         }
-//       } else if (error.request) {
-//         console.error("Request was made but no response received");
-//         console.error("Request details:", error.request);
-//         toast.error(
-//           "Network error: Unable to reach the server. Please check your connection."
-//         );
-//       } else {
-//         console.error("Error setting up request:", error.message);
-//       }
-
-//       const errorMessage =
-//         error.response?.data?.message ||
-//         error.message ||
-//         "Failed to complete employer profile. Please try again.";
-//       toast.error(errorMessage);
-
-//       setFormErrors({ submit: errorMessage });
-//     } finally {
-//       setIsSubmitting(false);
-//       setSubmitting(false);
-//     }
-    //   };
-    
-    const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
-      console.log("=== EMPLOYER PROFILE SUBMISSION STARTED ===");
-      console.log("Form values:", values);
-      console.log("Profile image:", profileImage?.name);
-      console.log("Company logo:", companyLogo?.name);
-      console.log("Company certificate:", companyCertificate?.name);
-      console.log("Employer ID:", employerId);
-
-      // Clear previous errors
-      const setFormErrors = {}; // Assuming setFormErrors is a state or context variable
-
-      // Only validate required personal fields
-      if (!values.name || !values.email || !values.phone || !values.location) {
-        const error =
-          "Personal information (name, email, phone, location) is required";
-        setFormErrors.submit = error;
-        toast.error(error);
-        setSubmitting(false);
-        return;
+      if (profileImage) {
+        formData.append("files", profileImage);
+        fileMetadata.profileImage = profileImage.name;
+        console.log("Added profile image:", profileImage.name);
       }
 
-      // Validate employer ID
-      if (!employerId) {
-        const error = "Employer ID is missing. Please log in again.";
-        setFormErrors.submit = error;
-        toast.error(error);
-        setSubmitting(false);
-        return;
+      if (companyLogo) {
+        formData.append("files", companyLogo);
+        fileMetadata.companyLogo = companyLogo.name;
+        console.log("Added company logo:", companyLogo.name);
       }
 
-      setIsSubmitting(true);
+      if (companyCertificate) {
+        formData.append("files", companyCertificate);
+        fileMetadata.companyCertificate = companyCertificate.name;
+        console.log("Added company certificate:", companyCertificate.name);
+      }
 
-      try {
-        // Create FormData for multipart/form-data submission
-        const formData = new FormData();
+      // Add file metadata if we have files
+      if (Object.keys(fileMetadata).length > 0) {
+        formData.append("fileMetadata", JSON.stringify(fileMetadata));
+        console.log("File metadata:", fileMetadata);
+      }
 
-        // Add employer profile data
-        const employerProfileData = {
-          employerId: employerId,
-          name: values.name,
-          email: values.email,
-          phone: values.phone,
-          location: values.location,
-          about: values.about || "",
-          isProfileComplete: true,
-        };
+      // Log FormData contents for debugging
+      console.log("=== FORM DATA CONTENTS ===");
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(
+            `${key}: File - ${value.name} (${value.type}, ${value.size} bytes)`
+          );
+        } else {
+          console.log(`${key}: ${value}`);
+        }
+      }
 
-        // Add company data only if provided
-        const companyData = {};
-        if (values.companyName) companyData.companyName = values.companyName;
-        if (values.companyEmail) companyData.email = values.companyEmail;
-        if (values.companyPhone) companyData.phone = values.companyPhone;
-        if (values.companyAddress) companyData.address = values.companyAddress;
-        if (values.companyAbout) companyData.about = values.companyAbout;
-        if (values.webSite) companyData.webSite = values.webSite;
-        if (values.socialLinks) companyData.socialLinks = values.socialLinks;
+      const apiUrl = `/complete-employer-profile/${employerId}`;
+      console.log("Making API request to:", apiUrl);
 
-        console.log("Employer profile data:", employerProfileData);
-        console.log("Company data:", companyData);
+      // Submit to backend
+      const response = await employerAxiosInstance.post(apiUrl, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 30000, // 30 second timeout
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          console.log(`Upload progress: ${percentCompleted}%`);
+        },
+      });
 
-        formData.append(
-          "employerProfileData",
-          JSON.stringify(employerProfileData)
+      console.log("=== API RESPONSE ===");
+      console.log("Response status:", response.status);
+      console.log("Response data:", response.data);
+
+      if (response.data.success) {
+        toast.success("Employer profile completed successfully!");
+
+        // Clean up preview URLs
+        if (profileImagePreview) {
+          URL.revokeObjectURL(profileImagePreview);
+        }
+        if (companyLogoPreview) {
+          URL.revokeObjectURL(companyLogoPreview);
+        }
+
+        // Navigate to dashboard after a short delay
+        setTimeout(() => {
+          navigate("/employer/dashboard");
+        }, 1500);
+      } else {
+        throw new Error(
+          response.data.message || "Failed to complete employer profile"
         );
-        formData.append("companyData", JSON.stringify(companyData));
-
-        // Add files with metadata
-        const fileMetadata = {};
-
-        if (profileImage) {
-          formData.append("files", profileImage);
-          fileMetadata.profileImage = profileImage.name;
-          console.log("Added profile image:", profileImage.name);
-        }
-
-        if (companyLogo) {
-          formData.append("files", companyLogo);
-          fileMetadata.companyLogo = companyLogo.name;
-          console.log("Added company logo:", companyLogo.name);
-        }
-
-        if (companyCertificate) {
-          formData.append("files", companyCertificate);
-          fileMetadata.companyCertificate = companyCertificate.name;
-          console.log("Added company certificate:", companyCertificate.name);
-        }
-
-        // Add file metadata if we have files
-        if (Object.keys(fileMetadata).length > 0) {
-          formData.append("fileMetadata", JSON.stringify(fileMetadata));
-          console.log("File metadata:", fileMetadata);
-        }
-
-        // Log FormData contents for debugging
-        console.log("=== FORM DATA CONTENTS ===");
-        for (const [key, value] of formData.entries()) {
-          if (value instanceof File) {
-            console.log(
-              `${key}: File - ${value.name} (${value.type}, ${value.size} bytes)`
-            );
-          } else {
-            console.log(`${key}: ${value}`);
-          }
-        }
-
-        const apiUrl = `/complete-employer-profile/${employerId}`;
-        console.log("Making API request to:", apiUrl);
-
-        // Submit to backend with increased timeout
-        const response = await employerAxiosInstance.post(apiUrl, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          timeout: 60000, // Increase timeout to 60 seconds
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            console.log(`Upload progress: ${percentCompleted}%`);
-          },
-        });
-
-        console.log("=== API RESPONSE ===");
-        console.log("Response status:", response.status);
-        console.log("Response data:", response.data);
-
-        if (response.data.success) {
-          toast.success("Employer profile completed successfully!");
-
-          // Clean up preview URLs
-          const profileImagePreview = null; // Assuming profileImagePreview is a state or context variable
-          const companyLogoPreview = null; // Assuming companyLogoPreview is a state or context variable
-
-          if (profileImagePreview) {
-            URL.revokeObjectURL(profileImagePreview);
-          }
-          if (companyLogoPreview) {
-            URL.revokeObjectURL(companyLogoPreview);
-          }
-
-          // Navigate to dashboard after a short delay
-          setTimeout(() => {
-            navigate("/employer/dashboard");
-          }, 1500);
-        } else {
-          throw new Error(
-            response.data.message || "Failed to complete employer profile"
-          );
-        }
-      } catch (error) {
-        console.error("=== ERROR DETAILS ===");
-        console.error("Error object:", error);
-
-        if (error.response) {
-          console.error("Response status:", error.response.status);
-          console.error("Response headers:", error.response.headers);
-          console.error("Response data:", error.response.data);
-
-          // Handle specific error cases
-          if (error.response.status === 400) {
-            const errorData = error.response.data;
-            if (errorData.errors) {
-              // Handle validation errors
-              Object.keys(errorData.errors).forEach((field) => {
-                setFieldError(field, errorData.errors[field]);
-              });
-            }
-          } else if (error.response.status === 401) {
-            toast.error("Authentication failed. Please log in again.");
-            navigate("/employer/login");
-            return;
-          } else if (error.response.status === 413) {
-            toast.error("File size too large. Please upload smaller files.");
-          } else if (error.response.status === 500) {
-            toast.error("Server error. Please try again later.");
-          }
-        } else if (error.request) {
-          console.error("Request was made but no response received");
-          console.error("Request details:", error.request);
-          toast.error(
-            "Network error: Unable to reach the server. Please check your connection."
-          );
-        } else {
-          console.error("Error setting up request:", error.message);
-        }
-
-        const errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          "Failed to complete employer profile. Please try again.";
-        toast.error(errorMessage);
-
-        setFormErrors.submit = errorMessage;
-      } finally {
-        setIsSubmitting(false);
-        setSubmitting(false);
       }
-    };
+    } catch (error) {
+      console.error("=== ERROR DETAILS ===");
+      console.error("Error object:", error);
+
+      if (error.response) {
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
+        console.error("Response data:", error.response.data);
+
+        // Handle specific error cases
+        if (error.response.status === 400) {
+          const errorData = error.response.data;
+          if (errorData.errors) {
+            // Handle validation errors
+            Object.keys(errorData.errors).forEach((field) => {
+              setFieldError(field, errorData.errors[field]);
+            });
+          }
+        } else if (error.response.status === 401) {
+          toast.error("Authentication failed. Please log in again.");
+          navigate("/employer/login");
+          return;
+        } else if (error.response.status === 413) {
+          toast.error("File size too large. Please upload smaller files.");
+        } else if (error.response.status === 500) {
+          toast.error("Server error. Please try again later.");
+        }
+      } else if (error.request) {
+        console.error("Request was made but no response received");
+        console.error("Request details:", error.request);
+        toast.error(
+          "Network error: Unable to reach the server. Please check your connection."
+        );
+      } else {
+        console.error("Error setting up request:", error.message);
+      }
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to complete employer profile. Please try again.";
+      toast.error(errorMessage);
+
+      setFormErrors({ submit: errorMessage });
+    } finally {
+      setIsSubmitting(false);
+      setSubmitting(false);
+    }
+  };
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
@@ -735,8 +572,8 @@ export default function EmployerCompleteProfile() {
                         className="h-2"
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Only personal information is required. Company details
-                        are optional.
+                        Complete all fields including optional company and
+                        social information for 100% completion.
                       </p>
                     </div>
 
@@ -775,7 +612,8 @@ export default function EmployerCompleteProfile() {
                                   <AvatarImage
                                     src={
                                       profileImagePreview ||
-                                      "/placeholder.svg?height=96&width=96"
+                                      "/placeholder.svg?height=96&width=96" ||
+                                      "/placeholder.svg"
                                     }
                                     alt="Profile"
                                   />
@@ -1132,6 +970,7 @@ export default function EmployerCompleteProfile() {
                                       <AvatarImage
                                         src={
                                           companyLogoPreview ||
+                                          "/placeholder.svg" ||
                                           "/placeholder.svg"
                                         }
                                         alt="Company Logo"

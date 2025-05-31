@@ -3,7 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
+import { useDispatch, useSelector } from "react-redux";
+import { userOtpVerificationAction } from "@/redux/actions/userAction";
 import GrapeAnimation from "@/components/GrapeAnimation";
 import { motion } from "framer-motion";
 
@@ -31,6 +32,10 @@ const RegisterOtp = () => {
   const inputRefs = useRef([]);
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Get loading state from Redux
+  const { loading: reduxLoading } = useSelector((state) => state.user);
 
   // Get email from both localStorage and location state for redundancy
   const emailFromState = location.state?.email;
@@ -52,12 +57,12 @@ const RegisterOtp = () => {
     console.log("Using email:", email);
 
     // Redirect if no email found
-    if (!email) {
-      console.error("No email found in state or localStorage");
-      toast.error("Session expired. Please register again.");
-      navigate("/sign-up");
-      return;
-    }
+    // if (!email) {
+    //   console.error("No email found in state or localStorage");
+    //   toast.error("Session expired. Please register again.");
+    //   navigate("/sign-up");
+    //   return;
+    // }
 
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
@@ -94,30 +99,32 @@ const RegisterOtp = () => {
     try {
       const joinedOtp = otp.join("");
       const data = {
-        otp: joinedOtp,
         email,
+        otp: joinedOtp,
       };
 
       console.log("Verifying OTP:", data);
 
-      const res = await userAxiosInstance.post("/verify-otp", data);
-      console.log("OTP verification response:", res);
+      // Use Redux action for OTP verification
+      const result = await dispatch(userOtpVerificationAction(data)).unwrap();
 
-      if (res.data.status) {
+      console.log("OTP verification result:", result);
+
+      if (result.success) {
         // Clean up localStorage
         localStorage.removeItem("user-email");
         localStorage.removeItem("email");
 
         toast.success("OTP verification successful!");
+
+        // Navigate to complete profile page
         setTimeout(() => {
           navigate("/complete-profile");
         }, 1500);
       }
     } catch (err) {
       console.error("OTP verification error:", err);
-      toast.error(
-        err.response?.data?.message || "Invalid OTP. Please try again."
-      );
+      toast.error(err.message || "Invalid OTP. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +139,14 @@ const RegisterOtp = () => {
 
       console.log("Resending OTP for:", email);
 
-      const { data } = await userAxiosInstance.post("/resend-otp", payload);
+      // Use the direct axios call for resend (since it doesn't need Redux state)
+      const userAxiosInstance = (
+        await import("@/config/axiosConfig/userAxiosInstance")
+      ).default;
+      const { data } = await userAxiosInstance.post(
+        "/resend-signup-otp",
+        payload
+      );
 
       if (data.status) {
         toast.success("OTP resent successfully!");
@@ -153,6 +167,9 @@ const RegisterOtp = () => {
   if (!email) {
     return null; // Will redirect in useEffect
   }
+
+  // Use either local loading state or Redux loading state
+  const isSubmitting = isLoading || reduxLoading;
 
   return (
     <motion.div
@@ -218,6 +235,7 @@ const RegisterOtp = () => {
                       ? "border-blue-500"
                       : "border-gray-300"
                   } rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all`}
+                  disabled={isSubmitting}
                 />
               ))}
             </motion.div>
@@ -225,14 +243,14 @@ const RegisterOtp = () => {
             <motion.button
               variants={itemVariants}
               className={`w-full bg-primary hover:bg-blue-700 text-white py-3 rounded-lg transition-colors font-medium ${
-                otp.some((digit) => digit === "") || isLoading
+                otp.some((digit) => digit === "") || isSubmitting
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
-              disabled={otp.some((digit) => digit === "") || isLoading}
+              disabled={otp.some((digit) => digit === "") || isSubmitting}
               type="submit"
             >
-              {isLoading ? "Verifying..." : "Verify Email"}
+              {isSubmitting ? "Verifying..." : "Verify Email"}
             </motion.button>
           </motion.form>
 
@@ -246,7 +264,7 @@ const RegisterOtp = () => {
                 isResending ? "opacity-50 cursor-not-allowed" : ""
               }`}
               onClick={resendOtp}
-              disabled={isResending}
+              disabled={isResending || isSubmitting}
             >
               {isResending ? "Resending..." : "Resend Code"}
             </button>
