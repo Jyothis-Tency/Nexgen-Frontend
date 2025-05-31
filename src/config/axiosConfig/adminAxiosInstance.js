@@ -25,7 +25,7 @@ adminAxiosInstance.interceptors.request.use(
 
 adminAxiosInstance.interceptors.response.use(
   (response) => {
-    console.log("response reached");
+    console.log("response reached from admin");
     return response;
   },
   (error) => {

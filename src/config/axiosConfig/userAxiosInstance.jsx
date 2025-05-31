@@ -22,7 +22,7 @@ userAxiosInstance.interceptors.request.use(
 
 userAxiosInstance.interceptors.response.use(
   (response) => {
-    console.log("response reached");
+    console.log("response reached from user");
     return response;
   },
   (error) => {

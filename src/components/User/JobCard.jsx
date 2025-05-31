@@ -65,32 +65,32 @@ const JobCard = ({ job, layout }) => {
         aria-hidden="true"
       >
         <span className="text-white font-bold text-lg">
-          {job.companyName?.charAt(0) || "J"}
+          {job?.companyName?.charAt(0) || "J"}
         </span>
       </figure>
 
       {/* Job Info */}
       <div className={`${layout === "list" ? "flex-1" : ""}`}>
-        <h1 className="text-lg font-semibold text-gray-800">{job.jobTitle}</h1>
+        <h1 className="text-lg font-semibold text-gray-800">{job?.jobTitle}</h1>
         {/* <p className="text-sm text-gray-500">{job.companyName.toUpperCase()}</p> */}
 
         {/* Job Details */}
         <div className="space-y-1">
           <div className="flex items-center space-x-2 text-gray-600 text-sm">
             <MdPlace className="flex-shrink-0" />
-            <p className="truncate">{`${job.city}, ${job.country}`}</p>
+            <p className="truncate">{`${job?.city}, ${job?.country}`}</p>
           </div>
 
           <div className="flex items-center space-x-2 text-gray-600 text-sm">
             <FaIndianRupeeSign className="flex-shrink-0" />
-            <p className="truncate">{job.salaryRange?.join(" - ")}</p>
+            <p className="truncate">{job?.salaryRange?.join(" - ")}</p>
           </div>
 
           <div className="flex items-center space-x-2 text-gray-600 text-sm">
             <IoBriefcase className="flex-shrink-0" />
             <p className="truncate">
-              {job.experienceRequired[0]} -{" "}
-              {job.experienceRequired[job.experienceRequired.length - 1]} yrs
+              {job?.experienceRequired[0]} -{" "}
+              {job?.experienceRequired[job?.experienceRequired.length - 1]} yrs
             </p>
           </div>
         </div>
@@ -101,7 +101,7 @@ const JobCard = ({ job, layout }) => {
       >
         {/* Date in top-right */}
         <p className="text-xs sm:text-sm text-gray-500 self-end">
-          {calculateTimeAgo(job.createdAt)}
+          {calculateTimeAgo(job?.createdAt)}
         </p>
 
         {/* Buttons centered below */}
@@ -116,17 +116,17 @@ const JobCard = ({ job, layout }) => {
           <button
             className={`text-sm font-medium px-4 py-2 rounded-lg border transition w-full sm:w-auto
         ${
-          job.alreadyApplied
+          job?.alreadyApplied
             ? "bg-gray-300 text-gray-600 cursor-not-allowed"
             : "bg-green-500 text-white hover:bg-white hover:border-green-500 hover:text-green-500"
         }`}
-            disabled={job.alreadyApplied}
-            aria-label={job.alreadyApplied ? "Already applied" : "Apply to job"}
+            disabled={job?.alreadyApplied}
+            aria-label={job?.alreadyApplied ? "Already applied" : "Apply to job"}
             onClick={
               !job.alreadyApplied ? () => handleApplyJob(job) : undefined
             }
           >
-            {job.alreadyApplied ? "Applied" : "Apply"}
+            {job?.alreadyApplied ? "Applied" : "Apply"}
           </button>
 
           {/* Job Details Button */}
@@ -136,11 +136,11 @@ const JobCard = ({ job, layout }) => {
             aria-label="View job details"
             onClick={jobDetailNavigation}
           >
-            Job Details
+            Details
           </button>
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              `Check out this job: ${job.jobTitle} at ${job.employer.name}. Here's the link: https://techpath.in/job-details/${job._id}`
+              `Check out this job: ${job?.jobTitle} at ${job?.employer?.name}. Here's the link: https://techpath.in/job-details/${job._id}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
