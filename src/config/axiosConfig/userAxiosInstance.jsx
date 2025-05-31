@@ -2,7 +2,7 @@ import axios from "axios";
 const env = import.meta.env;
 
 const userAxiosInstance = axios.create({
-  baseURL: `http://localhost:5001`,
+  baseURL: `https://api.techpath.in`,
   withCredentials: true,
 });
 
@@ -22,7 +22,7 @@ userAxiosInstance.interceptors.request.use(
 
 userAxiosInstance.interceptors.response.use(
   (response) => {
-    console.log("response reached");
+    console.log("response reached from user");
     return response;
   },
   (error) => {

@@ -90,8 +90,10 @@ export default function Home() {
     setLoading(true);
     try {
       const { data } = await userAxiosInstance.get("/getJobPosts");
-      console.log(data.jobPosts);
-      setJobs(data.jobPosts);
+      console.log('====>',data.jobPosts);
+      if(data?.jobPosts) {
+        setJobs(data.jobPosts);
+      }
     } catch (error) {
       console.log(error);
     } finally {

@@ -87,7 +87,7 @@ const JobDetails = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
-      className="flex flex-col min-h-screen mt-14"
+      className="flex flex-col min-h-screen mt-16"
     >
       {/* <header className="flex-shrink-0">
         <Navbar />
@@ -97,13 +97,13 @@ const JobDetails = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="mx-14 flex flex-col lg:flex-row p-4 lg:p-6 flex-grow gap-4 lg:gap-8"
+        className="w-full px-4 py-6 lg:px-14 flex flex-col lg:flex-row flex-grow gap-4 lg:gap-8"
       >
         <section className="w-full space-y-6">
           {/* Job Details Card */}
           <motion.div
             variants={itemVariants}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-white rounded-lg shadow-md p-6 w-full"
           >
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <motion.div variants={itemVariants} className="space-y-2">
@@ -159,16 +159,18 @@ const JobDetails = () => {
                 >
                   {job.applied ? "Applied" : "Apply Now"}
                 </button>
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                  <WhatsApp
-                    style={{
-                      color: "#25D366",
-                      fontSize: 38,
-                      cursor: "pointer",
-                    }}
-                    titleAccess="Share on WhatsApp"
-                  />
-                </a>
+                
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    <WhatsApp
+                      style={{
+                        color: "#25D366",
+                        fontSize: 38,
+                        cursor: "pointer",
+                      }}
+                      titleAccess="Share on WhatsApp"
+                    />
+                  </a>
+              
 
                 <div className="flex gap-4">
                   {/* <CiBookmarkCheck className="text-2xl text-gray-700 cursor-pointer hover:text-primary transition-colors" />
