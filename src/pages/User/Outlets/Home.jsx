@@ -16,7 +16,7 @@ import employerImg from "/Images/employer-img.jpg";
 import repairImg from "/Images/mob-repair-img1.jpg";
 import { useSelector } from "react-redux";
 import seekerImg from "/Images/cv.png";
-import businessmanImg from "/Images/businessman.png";
+import businessmanImg from "/Images/businessman-blue.png";
 import AdBannerCarousel from "@/components/User/adBanner";
 import adminAxiosInstance from "@/config/axiosConfig/adminAxiosInstance";
 
@@ -160,13 +160,14 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="flex flex-col sm:flex-row items-center gap-6 mt-6 sm:mt-8 w-full max-w-md"
+                className="flex flex-col sm:flex-row items-center gap-6 mt-20 sm:mt-20 w-full max-w-md"
               >
                 <Link to="/sign-up" className="w-full">
-                  <div className="flex items-center justify-between w-full rounded-lg bg-blue-500 py-4 px-6 text-white transform transition-transform hover:scale-105">
+                  <div className="flex items-center justify-between w-full rounded-lg
+                    py-4 px-6 border-1 border-gray-100 text-white bg-blue-500 transform transition-transform hover:scale-105">
                     <div className="mx-auto text-center">
-                      <span className="text-sm block">Register as</span>
-                      <div className="text-lg font-semibold">Job Seeker</div>
+                      <span className="text-lg font-semibold">I want a job</span>
+                      {/* <div className="text-lg font-semibold">I want a job</div> */}
                     </div>
                     <img
                       src={seekerImg || "/placeholder.svg"}
@@ -177,10 +178,11 @@ export default function Home() {
                 </Link>
 
                 <Link to="/employer/register" className="w-full">
-                  <div className="flex items-center justify-between w-full rounded-lg bg-blue-500 py-4 px-6 text-white transform transition-transform hover:scale-105">
+                  <div className="flex items-center justify-between w-full rounded-lg
+                    py-4 px-4 border-1 border-blue-500 bg-gray-100 text-blue-500 transform transition-transform hover:scale-105">
                     <div className="mx-auto text-center">
-                      <span className="text-sm block">Register as</span>
-                      <div className="text-lg font-semibold">Employer</div>
+                      <span className="text-lg font-semibold">I want to hire</span>
+                      {/* <div className="text-lg font-semibold">I want to hire</div> */}
                     </div>
                     <img
                       src={businessmanImg || "/placeholder.svg"}

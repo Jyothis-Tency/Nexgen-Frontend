@@ -84,10 +84,12 @@ const AllJobsPage = () => {
     try {
       setLoading(true);
       const { data } = await userAxiosInstance.get("/getJobPosts", { params: { userId: user.userId } });
-      setJobs(data.jobPosts);
-      setFilteredJobs(data.jobPosts);
+      if(data?.jobPosts) {
+        setJobs(data.jobPosts);
+        setFilteredJobs(data.jobPosts);
+        console.log("RESULT", data.jobPosts)
+      }
       setLoading(false);
-      console.log("RESULT", data.jobPosts)
 
       if (searchInput) {
         handleSearch(searchInput, data.jobPosts); // ⬅️ Pass jobs explicitly
