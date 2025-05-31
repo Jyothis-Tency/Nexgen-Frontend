@@ -19,7 +19,7 @@ import seekerImg from "/Images/cv.png";
 import businessmanImg from "/Images/businessman-blue.png";
 import AdBannerCarousel from "@/components/User/adBanner";
 import adminAxiosInstance from "@/config/axiosConfig/adminAxiosInstance";
-import { SuperBallLoader } from "@/components/loader";
+// import { SuperBallLoader } from "@/components/loader";
 
 // Animation variants for staggered children
 const containerVariants = {
@@ -107,7 +107,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 bg-white flex items-center justify-center">
-        <SuperBallLoader/>
+        <p>Loading...</p>
       </div>
     )
   }
