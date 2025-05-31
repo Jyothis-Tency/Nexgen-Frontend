@@ -17,6 +17,8 @@ import JobDetailPage from "../pages/User/Outlets/JobDetails";
 import HomeLayout from "@/pages/User/Layout/HomeLayout";
 import JobApplicationHistory from "@/pages/User/Outlets/JobApplicationHistory";
 import { UserProtectedRoute } from "@/services/userProtector";
+import ForgotPasswordOtp from "@/pages/ForgotPasswordOtp";
+import ResetPassword from "@/pages/ResetPassword";
 
 function User() {
   return (
@@ -28,19 +30,56 @@ function User() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/otp-verification" element={<RegisterOtp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/forgot-password-otp" element={<ForgotPasswordOtp />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route element={<HomeLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/complete-profile" element={<UserProtectedRoute><CompleteProfile /></UserProtectedRoute>} />
+        <Route
+          path="/complete-profile"
+          element={
+            <UserProtectedRoute>
+              <CompleteProfile />
+            </UserProtectedRoute>
+          }
+        />
         {/* User Protected Routes */}
         <Route path="/all-jobs" element={<AllJobsPage />} />
         <Route path="/job-details/:id" element={<JobDetailPage />} />
-        <Route path="/job-application/:id" element={<UserProtectedRoute><JobApplication /></UserProtectedRoute>} />
-        <Route path="/application-submitted" element={<UserProtectedRoute><ApplicationSubmitted /></UserProtectedRoute>}/>
-        <Route path="/job-application-history" element={<UserProtectedRoute><JobApplicationHistory /></UserProtectedRoute>}/>
+        <Route
+          path="/job-application/:id"
+          element={
+            <UserProtectedRoute>
+              <JobApplication />
+            </UserProtectedRoute>
+          }
+        />
+        <Route
+          path="/application-submitted"
+          element={
+            <UserProtectedRoute>
+              <ApplicationSubmitted />
+            </UserProtectedRoute>
+          }
+        />
+        <Route
+          path="/job-application-history"
+          element={
+            <UserProtectedRoute>
+              <JobApplicationHistory />
+            </UserProtectedRoute>
+          }
+        />
 
-        <Route path="/profile" element={<UserProtectedRoute><Profile /></UserProtectedRoute>} />
-        <Route path="*" element={<NotFound/>} />
+        <Route
+          path="/profile"
+          element={
+            <UserProtectedRoute>
+              <Profile />
+            </UserProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

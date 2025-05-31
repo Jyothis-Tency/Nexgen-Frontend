@@ -215,7 +215,7 @@ const EmployerLogin = () => {
                 <span className="ml-2 text-sm text-gray-700">Remember me</span>
               </label>
               <motion.p
-                onClick={() => navigate("/forgot-password")}
+                onClick={() => navigate("/employer/forgot-password")}
                 className="text-sm text-blue-600 hover:underline cursor-pointer"
                 aria-label="Forgot Password"
                 whileHover={{ scale: 1.05 }}
