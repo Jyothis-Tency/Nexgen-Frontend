@@ -24,7 +24,7 @@ const itemVariants = {
 };
 
 const RegisterOtp = () => {
-  const OTP_LENGTH = 6; // Changed from 4 to 6 digits
+  const OTP_LENGTH = 6; // Using 6 digits for OTP
   const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(""));
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -32,12 +32,28 @@ const RegisterOtp = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get email from localStorage (set during registration)
-  const email = localStorage.getItem("user-email") || location.state?.email;
+  // Get email from both localStorage and location state for redundancy
+  const emailFromState = location.state?.email;
+  const emailFromStorage =
+    localStorage.getItem("user-email") || localStorage.getItem("email");
+  const email = emailFromState || emailFromStorage;
 
   useEffect(() => {
+    console.log("OTP Verification Component Mounted");
+    console.log("Email from state:", emailFromState);
+    console.log(
+      "Email from localStorage (user-email):",
+      localStorage.getItem("user-email")
+    );
+    console.log(
+      "Email from localStorage (email):",
+      localStorage.getItem("email")
+    );
+    console.log("Using email:", email);
+
     // Redirect if no email found
     if (!email) {
+      console.error("No email found in state or localStorage");
       toast.error("Session expired. Please register again.");
       navigate("/sign-up");
       return;
@@ -46,7 +62,7 @@ const RegisterOtp = () => {
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
     }
-  }, [email, navigate]);
+  }, [email, navigate, emailFromState]);
 
   const handleChange = (element, index) => {
     const value = element.value.replace(/[^0-9]/g, "");
@@ -88,7 +104,10 @@ const RegisterOtp = () => {
       console.log("OTP verification response:", res);
 
       if (res.data.status) {
+        // Clean up localStorage
         localStorage.removeItem("user-email");
+        localStorage.removeItem("email");
+
         toast.success("OTP verification successful!");
         setTimeout(() => {
           navigate("/complete-profile");
