@@ -100,12 +100,6 @@ const JobCard = ({ job, handleEdit, handleDelete, handleStatus, layout }) => {
         <Button icon={<DeleteOutlined />} onClick={()=>handleDelete(job)} danger>
           Delete
         </Button>
-        {/* <Button
-          className="bg-blue-600 text-white hover:bg-blue-700"
-          onClick={jobDetailNavigation}
-        >
-          Job Details
-        </Button> */}
       </footer>
     </article>
   );

@@ -301,9 +301,9 @@ export default function Dashboard() {
 
         {/* Dashboard Content */}
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-6 md:gap-8 ">
-          <div className="flex flex-col gap-4 md:gap-8">
-            <div className="flex flex-col-reverse gap-4 sm:flex-col-reverse md:flex-row md:items-center md:justify-between">
-              <h1 className="text-2xl font-bold tracking-tight">
+          <div className="flex flex-col gap-4 md:gap-5">
+            <div className="flex flex-col-reverse gap-3 sm:flex-col-reverse md:flex-row md:items-center md:justify-between">
+              <h1 className="sm:text-xl lg:text-2xl font-bold tracking-tight">
                 Recruitment Dashboard
               </h1>
 
@@ -322,85 +322,48 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div className="grid sm:gap-3 lg:gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Card >
+                <CardHeader className="p-4 flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Total Applications
                   </CardTitle>
                   <Briefcase className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 pt-0">
                   <div className="text-2xl font-bold">
                     {overallData?.totalApplications
                       ? overallData.totalApplications
                       : "0"}
                   </div>
-                  <p className="text-xs text-muted-foreground flex items-center">
-                    <span className="text-green-500 flex items-center mr-1">
-                      <ArrowUp className="h-3 w-3 mr-1" />
-                      12.5%
-                    </span>
-                    from last month
-                  </p>
                 </CardContent>
               </Card>
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardHeader className="p-4 flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Active Jobs
                   </CardTitle>
                   <Briefcase className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 pt-0">
                   <div className="text-2xl font-bold">
                     {overallData?.totalJobs ? overallData.totalJobs : "0"}
                   </div>
-                  <p className="text-xs text-muted-foreground flex items-center">
-                    <span className="text-green-500 flex items-center mr-1">
-                      <ArrowUp className="h-3 w-3 mr-1" />
-                      4.2%
-                    </span>
-                    from last month
-                  </p>
                 </CardContent>
               </Card>
-              {/* <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Time to Hire</CardTitle>
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">18 days</div>
-                  <p className="text-xs text-muted-foreground flex items-center">
-                    <span className="text-green-500 flex items-center mr-1">
-                      <ArrowDown className="h-3 w-3 mr-1" />
-                      3.1%
-                    </span>
-                    from last month
-                  </p>
-                </CardContent>
-              </Card> */}
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardHeader className="p-4 flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
                     Hiring Rate
                   </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 pt-0">
                   <div className="text-2xl font-bold">
                     {overallData?.totalApplication
                       ? `${overallData.totalApplication}%`
                       : "0%"}
                   </div>
-                  <p className="text-xs text-muted-foreground flex items-center">
-                    <span className="text-red-500 flex items-center mr-1">
-                      <ArrowDown className="h-3 w-3 mr-1" />
-                      1.8%
-                    </span>
-                    from last month
-                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -408,7 +371,7 @@ export default function Dashboard() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="lg:col-span-4">
                 <CardHeader>
-                  <CardTitle>Application Trends</CardTitle>
+                  <CardTitle className="sm:text-xl lg:text-2xl">Application Trends</CardTitle>
                   <CardDescription>
                     Monthly application, jobs, and hire rates
                   </CardDescription>
@@ -522,7 +485,7 @@ export default function Dashboard() {
               </Card> */}
             </div>
 
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>Recent Applications</CardTitle>
                 <CardDescription>Latest candidate applications</CardDescription>
@@ -586,7 +549,7 @@ export default function Dashboard() {
                   </table>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </main>
       </div>

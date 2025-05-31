@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { CiShare2, CiBookmarkCheck } from "react-icons/ci";
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
-import userAxiosInstance from '@/config/axiosConfig/userAxiosInstance';
-import Navbar from '../../../components/User/Navbar';
-import { useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
+import Navbar from "../../../components/User/Navbar";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { WhatsApp } from "@mui/icons-material";
 
 // Animation variants for staggered children
 const containerVariants = {
@@ -29,17 +31,22 @@ const JobDetails = () => {
   const [company, setCompany] = useState(null);
   const { id } = useParams();
   const user = useSelector((state) => state.user.seekerInfo);
+  const location = useLocation();
+  const currentUrl = `${window.location.origin}${location.pathname}`;
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await userAxiosInstance.get(`/job-details/${id}`, { params: { userId: user.userId } });
+        const { data } = await userAxiosInstance.get(`/job-details/${id}`, {
+          params: { userId: user.userId },
+        });
         setJob(data.jobDetails);
         setCompany(data.employerDetails);
         console.log(data);
       } catch (error) {
         toast.warning(error.response.data.message || "An error occurred");
-        navigate('/home');
+        navigate("/home");
       }
     };
 
@@ -53,8 +60,8 @@ const JobDetails = () => {
         companyName: company?.name,
         phone: job?.phone,
         companyLocation: `${job?.state}, ${job?.city}`,
-        employerId: company?.employerId
-      }
+        employerId: company?.employerId,
+      },
     });
   };
 
@@ -71,6 +78,10 @@ const JobDetails = () => {
     );
   }
 
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+    `Check out this job: ${job.name} at ${company.name}. Here's the link: ${currentUrl}`
+  )}`;
+  
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -99,16 +110,23 @@ const JobDetails = () => {
                 <h1 className="font-bold text-2xl lg:text-3xl">{job.name}</h1>
                 <div className="space-y-1">
                   <motion.p variants={itemVariants} className="text-sm">
-                    Company: <span className="font-semibold">{company.name}</span>
+                    Company:{" "}
+                    <span className="font-semibold">{company.name}</span>
                   </motion.p>
                   <motion.p variants={itemVariants} className="text-sm">
-                    Location: <span className="font-semibold">{job.city}, {job.state}</span>
+                    Location:{" "}
+                    <span className="font-semibold">
+                      {job.city}, {job.state}
+                    </span>
                   </motion.p>
                   <motion.p variants={itemVariants} className="text-sm">
                     Email: <span className="font-semibold">{job.email}</span>
                   </motion.p>
                   <motion.p variants={itemVariants} className="text-sm">
-                    Phone: <span className="font-semibold">{job.countryCode} {job.phone}</span>
+                    Phone:{" "}
+                    <span className="font-semibold">
+                      {job.countryCode} {job.phone}
+                    </span>
                   </motion.p>
                   <motion.p variants={itemVariants} className="text-sm">
                     Salary:{" "}
@@ -119,21 +137,39 @@ const JobDetails = () => {
                     </span>
                   </motion.p>
                   <motion.p variants={itemVariants} className="text-sm">
-                    Experience: <span className="font-semibold">{job.experience[0]}-{job.experience[1]} years</span>
+                    Experience:{" "}
+                    <span className="font-semibold">
+                      {job.experience[0]}-{job.experience[1]} years
+                    </span>
                   </motion.p>
                 </div>
               </motion.div>
-              <motion.div variants={itemVariants} className="flex items-center gap-4">
+              <motion.div
+                variants={itemVariants}
+                className="flex items-center gap-4"
+              >
                 <button
-                  className={`px-4 py-2 text-white rounded-md text-center text-sm font-semibold font-sans transition-colors ${job.applied
-                    ? 'bg-gray-500 cursor-not-allowed'
-                    : 'bg-primary hover:bg-primary-dark'
-                    }`}
+                  className={`px-4 py-2 text-white rounded-md text-center text-sm font-semibold font-sans transition-colors ${
+                    job.applied
+                      ? "bg-gray-500 cursor-not-allowed"
+                      : "bg-primary hover:bg-primary-dark"
+                  }`}
                   onClick={!job.applied ? handleApplyJob : null}
                   disabled={job.applied}
                 >
-                  {job.applied ? 'Applied' : 'Apply Now'}
+                  {job.applied ? "Applied" : "Apply Now"}
                 </button>
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                  <WhatsApp
+                    style={{
+                      color: "#25D366",
+                      fontSize: 38,
+                      cursor: "pointer",
+                    }}
+                    titleAccess="Share on WhatsApp"
+                  />
+                </a>
+
                 <div className="flex gap-4">
                   {/* <CiBookmarkCheck className="text-2xl text-gray-700 cursor-pointer hover:text-primary transition-colors" />
                   <CiShare2 className="text-2xl text-gray-700 cursor-pointer hover:text-primary transition-colors" /> */}
@@ -214,10 +250,12 @@ const JobDetails = () => {
               </div>
               <div className="space-y-2">
                 <motion.p variants={itemVariants}>
-                  <span className="font-medium">Posted:</span> {new Date(job.postedAt).toLocaleDateString()}
+                  <span className="font-medium">Posted:</span>{" "}
+                  {new Date(job.postedAt).toLocaleDateString()}
                 </motion.p>
                 <motion.p variants={itemVariants}>
-                  <span className="font-medium">Location:</span> {job.city}, {job.state}
+                  <span className="font-medium">Location:</span> {job.city},{" "}
+                  {job.state}
                 </motion.p>
                 <motion.p variants={itemVariants}>
                   <span className="font-medium">Country:</span> {job.country}

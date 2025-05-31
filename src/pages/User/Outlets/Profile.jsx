@@ -17,10 +17,21 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit, Plus, FileText, Trash2, Check, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Edit, Plus, FileText, Trash2, Check, X, Award } from "lucide-react";
 import userAxiosInstance from "../../../config/axiosConfig/userAxiosInstance";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { jobData } from "./../../../data/Job_titles";
+
 
 // Validation schemas
 const ProfileSchema = Yup.object().shape({
@@ -93,6 +104,13 @@ const ExperienceSchema = Yup.object().shape({
     ),
 });
 
+const SkillsSchema = Yup.object().shape({
+  skillTitle: Yup.string().required("Job title is required"),
+  requireMents: Yup.array()
+    .min(1, "Please select at least one skill")
+    .required("Skills are required"),
+});
+
 // Custom form input component with error handling
 const FormInput = ({ label, name, type = "text", placeholder, ...props }) => (
   <div className="grid gap-2">
@@ -143,6 +161,13 @@ export default function ProfilePage() {
   const [currentExperience, setCurrentExperience] = useState(null);
   const [educationIndex, setEducationIndex] = useState(null);
   const [experienceIndex, setExperienceIndex] = useState(null);
+
+  // Skills dialog states
+  const [isSkillsDialogOpen, setIsSkillsDialogOpen] = useState(false);
+  const [currentSkill, setCurrentSkill] = useState(null);
+  const [skillIndex, setSkillIndex] = useState(null);
+  const [selectedJobTitle, setSelectedJobTitle] = useState("");
+  const [selectedRequirements, setSelectedRequirements] = useState([]);
 
   const userId = useSelector((state) => state.user.seekerInfo.userId);
 
@@ -466,6 +491,121 @@ export default function ProfilePage() {
     }
   };
 
+  // Skills handling
+  const openSkillsDialog = (index = null) => {
+    if (index !== null) {
+      const skill = user.skills[index];
+      setCurrentSkill({ ...skill });
+      setSkillIndex(index);
+      setSelectedJobTitle(skill.skillTitle);
+      setSelectedRequirements(skill.requireMents || []);
+    } else {
+      setCurrentSkill({
+        skillTitle: "",
+        requireMents: [],
+      });
+      setSkillIndex(null);
+      setSelectedJobTitle("");
+      setSelectedRequirements([]);
+    }
+    setIsSkillsDialogOpen(true);
+  };
+
+  const handleJobTitleChange = (jobTitle) => {
+    setSelectedJobTitle(jobTitle);
+    setSelectedRequirements([]); // Reset requirements when job title changes
+  };
+
+  const handleRequirementToggle = (requirement) => {
+    setSelectedRequirements((prev) =>
+      prev.includes(requirement)
+        ? prev.filter((req) => req !== requirement)
+        : [...prev, requirement]
+    );
+  };
+
+  const saveSkills = async () => {
+    if (!selectedJobTitle || selectedRequirements.length === 0) {
+      toast.error("Please select a job title and at least one skill");
+      return;
+    }
+
+    const skillData = {
+      skillTitle: selectedJobTitle,
+      requireMents: selectedRequirements,
+    };
+
+    let updatedSkills;
+    if (skillIndex !== null) {
+      // Editing existing skill
+      updatedSkills = [...(user.skills || [])];
+      updatedSkills[skillIndex] = skillData;
+    } else {
+      // Adding new skill
+      updatedSkills = [...(user.skills || []), skillData];
+    }
+
+    try {
+      // Send skills wrapped in an object as expected by backend
+      const response = await userAxiosInstance.post(
+        `/update-skills/${userId}`,
+        { skills: updatedSkills } // Wrap in object with 'skills' key
+      );
+
+      if (response.data.success) {
+        toast.success(
+          skillIndex !== null
+            ? "Skills updated successfully"
+            : "Skills added successfully"
+        );
+
+        // Update local state with the response data
+        setUser(response.data.response);
+
+        // Close dialog and reset state
+        setIsSkillsDialogOpen(false);
+        setSkillIndex(null);
+        setSelectedJobTitle("");
+        setSelectedRequirements([]);
+      }
+    } catch (error) {
+      console.error("Error updating skills:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to save skills";
+      toast.error(errorMessage);
+    }
+  };
+
+  // Replace the existing deleteSkill function with this fixed version
+  const deleteSkill = async (index) => {
+    try {
+      const response = await userAxiosInstance.delete(
+        `/delete-skill/${userId}/${index}`
+      );
+
+      if (response.data.success) {
+        toast.success("Skill removed successfully");
+
+        // Update local state by removing the skill at the specified index
+        const updatedUser = { ...user };
+        updatedUser.skills = updatedUser.skills.filter((_, i) => i !== index);
+        setUser(updatedUser);
+      }
+    } catch (error) {
+      console.error("Error deleting skill:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to remove skill";
+      toast.error(errorMessage);
+    }
+  };
+
+  const getAvailableRequirements = () => {
+    const selectedJob = jobData.jobs.find(
+      (job) => job.title === selectedJobTitle
+    );
+    return selectedJob ? selectedJob.requirements : [];
+  };
+
   if (loading) {
     return (
       <motion.div
@@ -551,7 +691,8 @@ export default function ProfilePage() {
                   <Avatar className="h-24 w-24 sm:h-28 sm:w-28 border-4 border-background shadow-md">
                     <AvatarImage
                       src={
-                        user.profileUrl || "/placeholder.svg?height=112&width=112"
+                        user.profileUrl ||
+                        "/placeholder.svg?height=112&width=112"
                       }
                       alt={fullName}
                     />
@@ -559,7 +700,10 @@ export default function ProfilePage() {
                       {user.firstName.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
                     <Button
                       size="icon"
                       variant="outline"
@@ -585,7 +729,11 @@ export default function ProfilePage() {
                   <p className="text-sm text-muted-foreground mb-3">
                     {user.location || "No location set"}
                   </p>
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
                     <Button
                       variant="outline"
                       size="sm"
@@ -611,20 +759,22 @@ export default function ProfilePage() {
             >
               <div className="border-b sticky top-0 bg-background z-10">
                 <TabsList className="bg-transparent h-auto p-0 w-full justify-start overflow-x-auto flex">
-                  {["about", "resume", "education", "experience"].map((tab) => (
-                    <motion.div
-                      key={tab}
-                      whileHover={{ y: -2 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <TabsTrigger
-                        value={tab}
-                        className="px-6 py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none font-medium capitalize"
+                  {["about", "resume", "education", "experience", "skills"].map(
+                    (tab) => (
+                      <motion.div
+                        key={tab}
+                        whileHover={{ y: -2 }}
+                        transition={{ duration: 0.2 }}
                       >
-                        {tab}
-                      </TabsTrigger>
-                    </motion.div>
-                  ))}
+                        <TabsTrigger
+                          value={tab}
+                          className="px-6 py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none font-medium capitalize"
+                        >
+                          {tab}
+                        </TabsTrigger>
+                      </motion.div>
+                    )
+                  )}
                 </TabsList>
               </div>
 
@@ -689,7 +839,11 @@ export default function ProfilePage() {
                       <div className="mb-6">
                         <div className="flex justify-between items-center mb-4">
                           <h3 className="text-xl font-semibold">Resume</h3>
-                          <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                          <motion.div
+                            variants={buttonVariants}
+                            whileHover="hover"
+                            whileTap="tap"
+                          >
                             <Button
                               variant="outline"
                               size="sm"
@@ -730,12 +884,18 @@ export default function ProfilePage() {
                                     </p>
                                   </div>
                                 </div>
-                                <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                                <motion.div
+                                  variants={buttonVariants}
+                                  whileHover="hover"
+                                  whileTap="tap"
+                                >
                                   <Button
                                     variant="ghost"
                                     size="icon"
                                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                    onClick={() => handleRemoveResume(user.resume)}
+                                    onClick={() =>
+                                      handleRemoveResume(user.resume)
+                                    }
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
@@ -754,7 +914,11 @@ export default function ProfilePage() {
                             <p className="text-muted-foreground mb-4">
                               No resume uploaded yet
                             </p>
-                            <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                            <motion.div
+                              variants={buttonVariants}
+                              whileHover="hover"
+                              whileTap="tap"
+                            >
                               <Button
                                 variant="outline"
                                 onClick={() => resumeInputRef.current?.click()}
@@ -773,7 +937,11 @@ export default function ProfilePage() {
                       <div className="mb-6">
                         <div className="flex justify-between items-center mb-4">
                           <h3 className="text-xl font-semibold">Education</h3>
-                          <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                          <motion.div
+                            variants={buttonVariants}
+                            whileHover="hover"
+                            whileTap="tap"
+                          >
                             <Button
                               variant="outline"
                               size="sm"
@@ -806,26 +974,39 @@ export default function ProfilePage() {
                                           {edu.institute}
                                         </p>
                                         <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                                          {edu.startYear} - {edu.endYear || "Present"}
+                                          {edu.startYear} -{" "}
+                                          {edu.endYear || "Present"}
                                         </div>
                                       </div>
                                       <div className="flex gap-2 sm:self-start">
-                                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                                        <motion.div
+                                          variants={buttonVariants}
+                                          whileHover="hover"
+                                          whileTap="tap"
+                                        >
                                           <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => openEducationDialog(index)}
+                                            onClick={() =>
+                                              openEducationDialog(index)
+                                            }
                                           >
                                             <Edit className="h-4 w-4 mr-1" />
                                             Edit
                                           </Button>
                                         </motion.div>
-                                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                                        <motion.div
+                                          variants={buttonVariants}
+                                          whileHover="hover"
+                                          whileTap="tap"
+                                        >
                                           <Button
                                             variant="outline"
                                             size="sm"
                                             className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                            onClick={() => deleteEducation(index)}
+                                            onClick={() =>
+                                              deleteEducation(index)
+                                            }
                                           >
                                             <Trash2 className="h-4 w-4 mr-1" />
                                             Delete
@@ -848,7 +1029,11 @@ export default function ProfilePage() {
                             <p className="text-muted-foreground mb-4">
                               No education history added yet
                             </p>
-                            <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                            <motion.div
+                              variants={buttonVariants}
+                              whileHover="hover"
+                              whileTap="tap"
+                            >
                               <Button
                                 variant="outline"
                                 onClick={() => openEducationDialog()}
@@ -866,7 +1051,11 @@ export default function ProfilePage() {
                       <div className="mb-6">
                         <div className="flex justify-between items-center mb-4">
                           <h3 className="text-xl font-semibold">Experience</h3>
-                          <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                          <motion.div
+                            variants={buttonVariants}
+                            whileHover="hover"
+                            whileTap="tap"
+                          >
                             <Button
                               variant="outline"
                               size="sm"
@@ -899,26 +1088,39 @@ export default function ProfilePage() {
                                           {exp.company}
                                         </p>
                                         <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                                          {exp.startYear} - {exp.endYear || "Present"}
+                                          {exp.startYear} -{" "}
+                                          {exp.endYear || "Present"}
                                         </div>
                                       </div>
                                       <div className="flex gap-2 sm:self-start">
-                                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                                        <motion.div
+                                          variants={buttonVariants}
+                                          whileHover="hover"
+                                          whileTap="tap"
+                                        >
                                           <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => openExperienceDialog(index)}
+                                            onClick={() =>
+                                              openExperienceDialog(index)
+                                            }
                                           >
                                             <Edit className="h-4 w-4 mr-1" />
                                             Edit
                                           </Button>
                                         </motion.div>
-                                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                                        <motion.div
+                                          variants={buttonVariants}
+                                          whileHover="hover"
+                                          whileTap="tap"
+                                        >
                                           <Button
                                             variant="outline"
                                             size="sm"
                                             className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                            onClick={() => deleteExperience(index)}
+                                            onClick={() =>
+                                              deleteExperience(index)
+                                            }
                                           >
                                             <Trash2 className="h-4 w-4 mr-1" />
                                             Delete
@@ -941,13 +1143,139 @@ export default function ProfilePage() {
                             <p className="text-muted-foreground mb-4">
                               No work experience added yet
                             </p>
-                            <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                            <motion.div
+                              variants={buttonVariants}
+                              whileHover="hover"
+                              whileTap="tap"
+                            >
                               <Button
                                 variant="outline"
                                 onClick={() => openExperienceDialog()}
                               >
                                 <Plus className="h-4 w-4 mr-2" />
                                 Add Experience
+                              </Button>
+                            </motion.div>
+                          </motion.div>
+                        )}
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="skills" className="mt-0">
+                      <div className="mb-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-xl font-semibold">Skills</h3>
+                          <motion.div
+                            variants={buttonVariants}
+                            whileHover="hover"
+                            whileTap="tap"
+                          >
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openSkillsDialog()}
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add Skills
+                            </Button>
+                          </motion.div>
+                        </div>
+
+                        {user.skills && user.skills.length > 0 ? (
+                          <div className="grid gap-4">
+                            {user.skills.map((skill, index) => (
+                              <motion.div
+                                key={index}
+                                custom={index}
+                                variants={listItemVariants}
+                                initial="hidden"
+                                animate="visible"
+                              >
+                                <Card className="border border-border shadow-sm hover:shadow-md transition-shadow">
+                                  <CardContent className="p-5">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-3">
+                                          <Award className="h-5 w-5 text-primary" />
+                                          <h4 className="text-lg font-semibold">
+                                            {skill.skillTitle}
+                                          </h4>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                          {skill.requireMents?.map(
+                                            (requirement, reqIndex) => (
+                                              <Badge
+                                                key={reqIndex}
+                                                variant="secondary"
+                                                className="text-xs"
+                                              >
+                                                {requirement}
+                                              </Badge>
+                                            )
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-2 sm:self-start">
+                                        <motion.div
+                                          variants={buttonVariants}
+                                          whileHover="hover"
+                                          whileTap="tap"
+                                        >
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                              openSkillsDialog(index)
+                                            }
+                                          >
+                                            <Edit className="h-4 w-4 mr-1" />
+                                            Edit
+                                          </Button>
+                                        </motion.div>
+                                        <motion.div
+                                          variants={buttonVariants}
+                                          whileHover="hover"
+                                          whileTap="tap"
+                                        >
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                            onClick={() => deleteSkill(index)}
+                                          >
+                                            <Trash2 className="h-4 w-4 mr-1" />
+                                            Delete
+                                          </Button>
+                                        </motion.div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </motion.div>
+                            ))}
+                          </div>
+                        ) : (
+                          <motion.div
+                            className="bg-muted/20 rounded-lg p-6 text-center"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Award className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                            <p className="text-muted-foreground mb-4">
+                              No skills added yet
+                            </p>
+                            <motion.div
+                              variants={buttonVariants}
+                              whileHover="hover"
+                              whileTap="tap"
+                            >
+                              <Button
+                                variant="outline"
+                                onClick={() => openSkillsDialog()}
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add Skills
                               </Button>
                             </motion.div>
                           </motion.div>
@@ -1032,7 +1360,11 @@ export default function ProfilePage() {
                         placeholder="Enter your location"
                       />
                       <DialogFooter className="border-t pt-4">
-                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <motion.div
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                        >
                           <Button
                             type="button"
                             variant="outline"
@@ -1041,7 +1373,11 @@ export default function ProfilePage() {
                             Cancel
                           </Button>
                         </motion.div>
-                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <motion.div
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                        >
                           <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting ? "Saving..." : "Save Changes"}
                           </Button>
@@ -1072,7 +1408,9 @@ export default function ProfilePage() {
               <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>
-                    {educationIndex !== null ? "Edit Education" : "Add Education"}
+                    {educationIndex !== null
+                      ? "Edit Education"
+                      : "Add Education"}
                   </DialogTitle>
                   <DialogDescription>
                     {educationIndex !== null
@@ -1118,7 +1456,11 @@ export default function ProfilePage() {
                         />
                       </div>
                       <DialogFooter className="border-t pt-4">
-                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <motion.div
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                        >
                           <Button
                             type="button"
                             variant="outline"
@@ -1131,7 +1473,11 @@ export default function ProfilePage() {
                             Cancel
                           </Button>
                         </motion.div>
-                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <motion.div
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                        >
                           <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting
                               ? "Saving..."
@@ -1166,7 +1512,9 @@ export default function ProfilePage() {
               <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>
-                    {experienceIndex !== null ? "Edit Experience" : "Add Experience"}
+                    {experienceIndex !== null
+                      ? "Edit Experience"
+                      : "Add Experience"}
                   </DialogTitle>
                   <DialogDescription>
                     {experienceIndex !== null
@@ -1212,7 +1560,11 @@ export default function ProfilePage() {
                         />
                       </div>
                       <DialogFooter className="border-t pt-4">
-                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <motion.div
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                        >
                           <Button
                             type="button"
                             variant="outline"
@@ -1225,7 +1577,11 @@ export default function ProfilePage() {
                             Cancel
                           </Button>
                         </motion.div>
-                        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <motion.div
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                        >
                           <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting
                               ? "Saving..."
@@ -1238,6 +1594,144 @@ export default function ProfilePage() {
                     </Form>
                   )}
                 </Formik>
+              </DialogContent>
+            </motion.div>
+          </Dialog>
+        )}
+      </AnimatePresence>
+
+      {/* Skills Dialog */}
+      <AnimatePresence>
+        {isSkillsDialogOpen && (
+          <Dialog
+            open={isSkillsDialogOpen}
+            onOpenChange={setIsSkillsDialogOpen}
+          >
+            <motion.div
+              variants={dialogVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {skillIndex !== null ? "Edit Skills" : "Add Skills"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Select a job title and choose your skills from the available
+                    requirements
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="grid gap-6 py-4">
+                  {/* Job Title Selection */}
+                  <div className="grid gap-2">
+                    <Label htmlFor="jobTitle">Job Title</Label>
+                    <Select
+                      value={selectedJobTitle}
+                      onValueChange={handleJobTitleChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a job title" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {jobData.jobs.map((job) => (
+                          <SelectItem key={job.title} value={job.title}>
+                            {job.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Requirements Selection */}
+                  {selectedJobTitle && (
+                    <div className="grid gap-3">
+                      <Label>Skills & Requirements</Label>
+                      <div className="grid gap-3 max-h-60 overflow-y-auto border rounded-md p-3">
+                        {getAvailableRequirements().map((requirement) => (
+                          <div
+                            key={requirement}
+                            className="flex items-center space-x-2"
+                          >
+                            <Checkbox
+                              id={requirement}
+                              checked={selectedRequirements.includes(
+                                requirement
+                              )}
+                              onCheckedChange={() =>
+                                handleRequirementToggle(requirement)
+                              }
+                            />
+                            <Label
+                              htmlFor={requirement}
+                              className="text-sm font-normal cursor-pointer flex-1"
+                            >
+                              {requirement}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Selected Requirements Preview */}
+                      {selectedRequirements.length > 0 && (
+                        <div className="mt-3">
+                          <Label className="text-sm text-muted-foreground">
+                            Selected Skills ({selectedRequirements.length})
+                          </Label>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {selectedRequirements.map((requirement) => (
+                              <Badge
+                                key={requirement}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {requirement}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <DialogFooter className="border-t pt-4">
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setIsSkillsDialogOpen(false);
+                        setCurrentSkill(null);
+                        setSkillIndex(null);
+                        setSelectedJobTitle("");
+                        setSelectedRequirements([]);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    <Button
+                      onClick={saveSkills}
+                      disabled={
+                        !selectedJobTitle || selectedRequirements.length === 0
+                      }
+                    >
+                      {skillIndex !== null ? "Update Skills" : "Add Skills"}
+                    </Button>
+                  </motion.div>
+                </DialogFooter>
               </DialogContent>
             </motion.div>
           </Dialog>
@@ -1270,7 +1764,10 @@ export default function ProfilePage() {
                       src={
                         previewImageUrl ||
                         user.profileUrl ||
-                        "/placeholder.svg?height=80&width=80"
+                        "/placeholder.svg?height=80&width=80" ||
+                        "/placeholder.svg" ||
+                        "/placeholder.svg" ||
+                        "/placeholder.svg"
                       }
                       alt="Profile preview"
                     />
@@ -1278,13 +1775,21 @@ export default function ProfilePage() {
                   </Avatar>
                 </div>
                 <DialogFooter className="flex justify-between border-t pt-4">
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
                     <Button variant="outline" onClick={cancelImageUpload}>
                       <X className="h-4 w-4 mr-2" />
                       Cancel
                     </Button>
                   </motion.div>
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
                     <Button onClick={confirmImageUpload}>
                       <Check className="h-4 w-4 mr-2" />
                       Confirm
@@ -1323,13 +1828,19 @@ export default function ProfilePage() {
                     <p className="font-medium">{selectedResumeFile?.name}</p>
                     <p className="text-sm text-muted-foreground">
                       {selectedResumeFile
-                        ? `${(selectedResumeFile.size / 1024 / 1024).toFixed(2)} MB`
+                        ? `${(selectedResumeFile.size / 1024 / 1024).toFixed(
+                            2
+                          )} MB`
                         : ""}
                     </p>
                   </div>
                 </div>
                 <DialogFooter className="flex justify-between border-t pt-4">
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
                     <Button
                       variant="outline"
                       onClick={() => {
@@ -1341,7 +1852,11 @@ export default function ProfilePage() {
                       Cancel
                     </Button>
                   </motion.div>
-                  <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                  <motion.div
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
                     <Button onClick={confirmResumeUpload}>
                       <Check className="h-4 w-4 mr-2" />
                       Upload
