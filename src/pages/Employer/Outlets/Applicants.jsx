@@ -14,7 +14,6 @@ import employerAxiosInstance from "@/config/axiosConfig/employerAxiosInstance";
 import { toast } from "sonner";
 import ApplicantModal from "@/components/Employer/ApplicantModal";
 import { motion, AnimatePresence } from "framer-motion";
-import MobileTable from "@/components/Employer/MobileTable";
 import { useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
@@ -151,7 +150,6 @@ function Applicants() {
           />
         )}
       </motion.div>
-      {/* <MobileTable /> */}
 
       {/* Detail Modal */}
       <AnimatePresence>
