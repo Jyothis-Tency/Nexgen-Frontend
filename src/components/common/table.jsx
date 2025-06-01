@@ -4,16 +4,15 @@ import {
   MdOutlineKeyboardArrowLeft,
 } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
-const ListingTable = ({
-  users,
-  columns,
-  rowsPerPage = 5,
-  onView,
-}) => {
+const ListingTable = ({ users, columns, rowsPerPage = 5, onView }) => {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [itemsPerPage, setItemsPerPage] = useState(rowsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const toggleSelectAll = () => {
     if (selectedIds.size === users.length) {
@@ -34,20 +33,50 @@ const ListingTable = ({
   };
 
   const UserRow = ({ user }) => (
-    <tr className="">
-      {columns.map(({ key, label, render }, index) => (
-        <td key={index} className="p-4 text-sm text-black">
-          {render ? render(user[key], user) : user[key]}
+    <tr>
+      {columns.map(({ key, label, render }) => (
+        <td key={key} className="p-1 py-2 md:p-4 text-sm text-black text-left">
+          {key === "status" ? (
+            <div className="flex flex-col gap-1">
+              {render ? render(user[key], user) : user[key]}
+              {isSmallScreen && (
+                <button
+                  className="mt-1 text-blue-600 text-sm flex items-center gap-1"
+                  title="View"
+                  onClick={() => onView(user._id)}
+                >
+                  <FaEye />
+                  View
+                </button>
+              )}
+            </div>
+          ) : key === "email" ? (
+            // Email column with location below on small screens
+            <div className="flex flex-col gap-1">
+              {render ? render(user[key], user) : user[key]}
+              {isSmallScreen && user.location && (
+                <p className="text-xs text-gray-500">Location: {user.location}</p>
+              )}
+            </div>
+          ) : render ? (
+            render(user[key], user)
+          ) : (
+            user[key]
+          )}
         </td>
       ))}
-      <td className="flex justify-end items-center p-4">
-        <button className="mr-4" title="Edit" onClick={() => onView(user._id)}>
-          {<FaEye />}
-        </button>
-        {/* <button title="Delete" onClick={() => onDelete(user.id)}>
-          {<TfiTrash />}
-        </button> */}
-      </td>
+
+      {!isSmallScreen && (
+        <td className="flex justify-end items-center p-4">
+          <button
+            className="mr-4"
+            title="View"
+            onClick={() => onView(user._id)}
+          >
+            <FaEye />
+          </button>
+        </td>
+      )}
     </tr>
   );
 
@@ -113,21 +142,24 @@ const ListingTable = ({
     <div className="w-full max-w-6xl mx-auto">
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
-          <thead className="whitespace-nowrap ">
+          <thead className="whitespace-nowrap">
             <tr>
               {columns.map(({ key, label }) => (
                 <th
                   key={key}
-                  className="p-4 text-left text-sm font-semibold text-black "
+                  className="p-1 md:p-4 text-left text-sm font-semibold text-black"
                 >
                   {label}
                 </th>
               ))}
-              <th className="p-4 text-right text-sm font-semibold text-black">
-                Action
-              </th>
+              {!isSmallScreen && (
+                <th className="p-4 text-right text-sm font-semibold text-black">
+                  Action
+                </th>
+              )}
             </tr>
           </thead>
+
           <tbody className="whitespace-nowrap">
             {users
               .slice(
@@ -135,7 +167,7 @@ const ListingTable = ({
                 currentPage * itemsPerPage
               )
               .map((user) => (
-                <UserRow  key={user.id} user={user} />
+                <UserRow key={user.id} user={user} />
               ))}
           </tbody>
         </table>

@@ -15,6 +15,7 @@ import NotFound from "@/pages/Employer/NotFound";
 import AddorEditCompany from "@/pages/Employer/Outlets/AddorEditCompany";
 import UpdateJob from "@/pages/Employer/Outlets/UpdateJob";
 import { EmployerProtectedRoute } from "@/services/employerProtector";
+import ApplicantPage from "@/components/Employer/ApplicantModal";
 import EmployerForgotPassword from "@/pages/Employer/ForgotPassword";
 import EmployerForgotPasswordOtp from "@/pages/Employer/ForgotPasswordOTP";
 import EmployerResetPassword from "@/pages/Employer/ResetPassword";
@@ -83,6 +84,7 @@ function Employer() {
             </EmployerProtectedRoute>
           }
         />
+        <Route path="applicants/application" element={<EmployerProtectedRoute><ApplicantPage /></EmployerProtectedRoute>} />
         <Route
           path="company_details"
           element={
