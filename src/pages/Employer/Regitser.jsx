@@ -101,7 +101,8 @@ const Register = () => {
           navigate("/employer/otp");
         }
       } catch (err) {
-        toast.error(err.message || "An error occurred");
+        console.log("err",err)
+        toast.error(err.response.data.message || "An error occurred");
       }
     },
   });
