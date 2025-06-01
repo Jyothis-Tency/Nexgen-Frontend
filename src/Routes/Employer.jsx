@@ -14,6 +14,7 @@ import NotFound from "@/pages/Employer/NotFound";
 import AddorEditCompany from "@/pages/Employer/Outlets/AddorEditCompany";
 import UpdateJob from "@/pages/Employer/Outlets/UpdateJob";
 import { EmployerProtectedRoute } from "@/services/employerProtector";
+import ApplicantPage from "@/components/Employer/ApplicantModal";
 
 function Employer() {
   return (
@@ -29,6 +30,7 @@ function Employer() {
         <Route path="job/edit" element={<UpdateJob />} />
         <Route path="job_list" element={<EmployerProtectedRoute><JobList /></EmployerProtectedRoute>} />
         <Route path="applicants/:jobId" element={<EmployerProtectedRoute><Applicants /></EmployerProtectedRoute>} />
+        <Route path="applicants/application" element={<EmployerProtectedRoute><ApplicantPage /></EmployerProtectedRoute>} />
         <Route path="company_details" element={<EmployerProtectedRoute><CompanyDetails /></EmployerProtectedRoute>} />
         <Route path="addCompany" element={<EmployerProtectedRoute><AddorEditCompany /></EmployerProtectedRoute>} />
         <Route path="addCompany/:companyId" element={<EmployerProtectedRoute><AddorEditCompany /></EmployerProtectedRoute>} />

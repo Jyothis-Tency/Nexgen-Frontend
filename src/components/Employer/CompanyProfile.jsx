@@ -5,6 +5,13 @@ import {
   IconButton,
   Stack,
   Link as MuiLink,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -18,6 +25,7 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import EditCompanyModal from "./EditCompanyModal";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 const CompanyProfile = ({
   companies,
@@ -28,6 +36,20 @@ const CompanyProfile = ({
   setSelectedComp,
 }) => {
   const navigate = useNavigate();
+  const [aboutModalOpen, setAboutModalOpen] = useState(false);
+  const [aboutText, setAboutText] = useState("");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const handleOpenAboutModal = (about) => {
+    setAboutText(about);
+    setAboutModalOpen(true);
+  };
+
+  const handleCloseAboutModal = () => {
+    setAboutModalOpen(false);
+    setAboutText("");
+  };
 
   const handleEditClick = (company) => {
     navigate(`/employer/addCompany/${company._id}`, { state: { company } });
@@ -78,6 +100,32 @@ const CompanyProfile = ({
     tap: { scale: 0.9 },
   };
 
+  const InfoItem = ({ icon, label, children }) => (
+    <Box display="flex" alignItems="center">
+      <Box mr={1} color="text.secondary">
+        {icon}
+      </Box>
+      <Typography variant="body2" color="text.secondary">
+        <strong>{label}:</strong> {children}
+      </Typography>
+    </Box>
+  );
+
+  const AnimatedIconLink = ({ href, icon }) => (
+    <motion.div
+      variants={iconVariants}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      whileHover="hover"
+      whileTap="tap"
+    >
+      <MuiLink href={href} target="_blank" rel="noopener noreferrer">
+        {icon}
+      </MuiLink>
+    </motion.div>
+  );
+
   return (
     <>
       <Box>
@@ -85,213 +133,178 @@ const CompanyProfile = ({
           {companies.map((company, index) => (
             <motion.div
               key={company._id}
-              className="flex items-start gap-6 mb-6 border rounded-lg p-4 bg-white shadow-md transition hover:shadow-lg"
+              className="mb-6"
               custom={index}
               variants={cardVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
-              {/* Company Logo */}
-              <Box className="relative inline-block group">
-                <motion.div
-                  variants={avatarVariants}
-                  whileHover="hover"
-                  whileTap="tap"
-                >
-                  <MuiLink
-                    href={company.webSite || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative"
-                  >
-                    <Avatar
-                      src={company.logo || "/src/assets/Company-logo.png"}
-                      sx={{ width: 100, height: 100, border: "4px solid white" }}
-                    />
-                    <motion.span
-                      className="whitespace-nowrap min-w-max absolute bottom-[-30px] left-1/2 -translate-x-1/2 bg-gray-900 text-gray-400 text-xs px-2 py-1 rounded"
-                      variants={tooltipVariants}
-                      initial="hidden"
-                      animate="hidden"
-                      whileHover="visible"
-                    >
-                      Visit Website
-                    </motion.span>
-                  </MuiLink>
-                </motion.div>
-              </Box>
-
-              {/* Company Details */}
-              <Box className="flex-1">
-                <Box className="flex justify-between items-center pb-3">
-                  <Typography
-                    variant="h6"
-                    className="text-gray-800 font-bold"
-                  >
-                    {company.companyName}
-                  </Typography>
+              <Box
+                display="flex"
+                flexDirection={{ xs: "column", md: "row" }}
+                gap={3}
+                p={2}
+                bgcolor="white"
+                boxShadow={2}
+                borderRadius={2}
+                overflow="hidden"
+              >
+                {/* Logo */}
+                <Box position="relative" alignSelf="center">
                   <motion.div
-                    variants={buttonVariants}
+                    variants={avatarVariants}
                     whileHover="hover"
                     whileTap="tap"
                   >
-                    <IconButton onClick={() => handleEditClick(company)}>
-                      <EditIcon color="primary" />
-                    </IconButton>
+                    <MuiLink
+                      href={company.webSite || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Avatar
+                        src={company.logo || "/src/assets/Company-logo.png"}
+                        sx={{
+                          width: { xs: 80, sm: 100 },
+                          height: { xs: 80, sm: 100 },
+                          border: "4px solid white",
+                        }}
+                      />
+                      <motion.span
+                        className="whitespace-nowrap absolute bottom-[-30px] left-1/2 -translate-x-1/2 bg-gray-900 text-gray-400 text-xs px-2 py-1 rounded"
+                        variants={tooltipVariants}
+                        initial="hidden"
+                        animate="hidden"
+                        whileHover="visible"
+                      >
+                        Visit Website
+                      </motion.span>
+                    </MuiLink>
                   </motion.div>
                 </Box>
 
-                {/* Company Info with Icons */}
-                <Stack spacing={1.2}>
-                  <motion.div
-                    className="flex items-center"
-                    variants={itemVariants}
+                {/* Details */}
+                <Box flex={1}>
+                  {/* Header */}
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    flexWrap="wrap"
                   >
-                    <LanguageIcon
-                      fontSize="small"
-                      className="text-gray-600 mr-2"
-                    />
-                    <Typography variant="body2" className="text-gray-600">
-                      <strong>Website:</strong>{" "}
+                    <Typography variant="h6" color="text.primary">
+                      {company.companyName}
+                    </Typography>
+                    <motion.div
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <IconButton onClick={() => handleEditClick(company)}>
+                        <EditIcon color="primary" />
+                      </IconButton>
+                    </motion.div>
+                  </Box>
+
+                  {/* Info */}
+                  <Stack spacing={1.2} mt={2}>
+                    <InfoItem icon={<LanguageIcon />} label="Website">
                       <MuiLink href={company.webSite || "#"} color="primary">
                         {company.webSite || "Not specified"}
                       </MuiLink>
-                    </Typography>
-                  </motion.div>
-
-                  <motion.div
-                    className="flex items-center"
-                    variants={itemVariants}
-                  >
-                    <BusinessIcon
-                      fontSize="small"
-                      className="text-gray-600 mr-2"
-                    />
-                    <Typography variant="body2" className="text-gray-600">
-                      <strong>Email:</strong>{" "}
+                    </InfoItem>
+                    <InfoItem icon={<BusinessIcon />} label="Email">
                       {company.email || "Not specified"}
-                    </Typography>
-                  </motion.div>
-
-                  <motion.div
-                    className="flex items-center"
-                    variants={itemVariants}
-                  >
-                    <BusinessIcon
-                      fontSize="small"
-                      className="text-gray-600 mr-2"
-                    />
-                    <Typography variant="body2" className="text-gray-600">
-                      <strong>Phone:</strong>{" "}
+                    </InfoItem>
+                    <InfoItem icon={<BusinessIcon />} label="Phone">
                       {company.phone || "Not specified"}
-                    </Typography>
-                  </motion.div>
+                    </InfoItem>
+                    <InfoItem icon={<InfoIcon />} label="About">
+                      {isMobile ? (
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "normal",
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>
+                            handleOpenAboutModal(
+                              company.about || "Not available"
+                            )
+                          }
+                        >
+                          {company.about || "Not available"}
+                        </Typography>
+                      ) : (
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ whiteSpace: "pre-wrap" }}
+                        >
+                          {company.about || "Not available"}
+                        </Typography>
+                      )}
+                    </InfoItem>
 
-                  <motion.div
-                    className="bg-slate-400 flex items-center "
-                    variants={itemVariants}
-                  >
-                    <InfoIcon
-                      fontSize="small"
-                      className="text-gray-600 mr-2"
-                    />
-                    <Typography variant="body2" className="text-gray-600 "> {/*  text-sm lg:text-base whitespace-pre-wrap break-words */}
-                      <strong>Description:</strong>{" "}
-                      {company.about || "Not available"}
-                    </Typography>
-                  </motion.div>
-
-                  <motion.div
-                    className="flex items-center"
-                    variants={itemVariants}
-                  >
-                    <HomeIcon
-                      fontSize="small"
-                      className="text-gray-600 mr-2"
-                    />
-                    <Typography variant="body2" className="text-gray-600">
-                      <strong>Address:</strong>{" "}
+                    <InfoItem icon={<HomeIcon />} label="Address">
                       {company.address || "Not available"}
-                    </Typography>
-                  </motion.div>
-                </Stack>
+                    </InfoItem>
+                  </Stack>
 
-                {/* Social Links with Icons */}
-                <Stack direction="row" spacing={2} className="mt-3">
-                  <AnimatePresence>
-                    {company.socialLinks?.linkedin && (
-                      <motion.div
-                        variants={iconVariants}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        whileHover="hover"
-                        whileTap="tap"
-                      >
-                        <MuiLink
+                  {/* Social Links */}
+                  <Stack direction="row" spacing={2} mt={2} flexWrap="wrap">
+                    <AnimatePresence>
+                      {company.socialLinks?.linkedin && (
+                        <AnimatedIconLink
                           href={company.socialLinks.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600"
-                        >
-                          <LinkedInIcon />
-                        </MuiLink>
-                      </motion.div>
-                    )}
-                    {company.socialLinks?.twitter && (
-                      <motion.div
-                        variants={iconVariants}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        whileHover="hover"
-                        whileTap="tap"
-                      >
-                        <MuiLink
+                          icon={<LinkedInIcon />}
+                        />
+                      )}
+                      {company.socialLinks?.twitter && (
+                        <AnimatedIconLink
                           href={company.socialLinks.twitter}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600"
-                        >
-                          <TwitterIcon />
-                        </MuiLink>
-                      </motion.div>
-                    )}
-                    {company.socialLinks?.facebook && (
-                      <motion.div
-                        variants={iconVariants}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        whileHover="hover"
-                        whileTap="tap"
-                      >
-                        <MuiLink
+                          icon={<TwitterIcon />}
+                        />
+                      )}
+                      {company.socialLinks?.facebook && (
+                        <AnimatedIconLink
                           href={company.socialLinks.facebook}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600"
-                        >
-                          <FacebookIcon />
-                        </MuiLink>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </Stack>
+                          icon={<FacebookIcon />}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </Stack>
+                </Box>
               </Box>
             </motion.div>
           ))}
         </AnimatePresence>
       </Box>
-      {/* {modalState.editCompany && (
-        <EditCompanyModal
-          company={selectedComp} // Pass the selected company for editing
-          open={modalState.editCompany}
-          close={() => closeModal("editCompany")}
-          onSave={handleSaveCompany}
-        />
-      )} */}
+
+      <Dialog
+        open={aboutModalOpen}
+        onClose={handleCloseAboutModal}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>About Company</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+            {aboutText}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAboutModal} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
