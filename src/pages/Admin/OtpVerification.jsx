@@ -7,7 +7,7 @@ import GrapeAnimation from "@/components/GrapeAnimation";
 import useRequest from "@/hooks/useRequestUser";
 
 const OtpVerification = () => {
-  const OTP_LENGTH = 6;
+  const OTP_LENGTH = 4;
   const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(""));
   const inputRefs = useRef([]);
   const location = useLocation();
