@@ -365,7 +365,7 @@ const AllJobsPage = () => {
               </div>
 
               {/* View Toggle Buttons */}
-              <motion.div
+              {/* <motion.div
                 variants={itemVariants}
                 className="w-1/4 relative flex justify-end mb-6"
               >
@@ -389,7 +389,7 @@ const AllJobsPage = () => {
                 >
                   <FaList />
                 </button>
-              </motion.div>
+              </motion.div> */}
             </div>
 
             {/* Job Listings */}
@@ -408,11 +408,7 @@ const AllJobsPage = () => {
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className={`gap-3 ${
-                    viewMode === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
-                      : "flex flex-col"
-                  }`}
+                  className={`gap-3 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3`}
                 >
                   {currentJobs.map((job) => (
                     <motion.div
@@ -420,7 +416,7 @@ const AllJobsPage = () => {
                       variants={itemVariants}
                       className="flex justify-center"
                     >
-                      <JobCard job={job} layout={viewMode} />
+                      <JobCard job={job} layout={viewMode}/>
                     </motion.div>
                   ))}
                 </motion.div>
