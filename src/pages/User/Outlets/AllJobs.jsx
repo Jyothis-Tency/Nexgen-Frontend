@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import JobCard from "../../../components/User/JobCard";
 import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
 import { useSelector } from 'react-redux';
+import { MdFilterList } from "react-icons/md";
 
 // Animation variants for staggered children
 const containerVariants = {
@@ -39,6 +40,9 @@ const AllJobsPage = () => {
   const location = useLocation();
   var { searchInput } = location.state || {};
   const user = useSelector((state) => state.user.seekerInfo);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,18 +77,42 @@ const AllJobsPage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+
+  useEffect(() => {
+    if (showFilterModal) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  
+    
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [showFilterModal]);
+  
+
+
   // useEffect(() => {
   //   filterJobs();
   // }, [jobType, experienceLevel, searchLocation]);
   const handleFilter = () => {
     filterJobs();
+    setShowFilterModal(false)
   };
 
   const fetchJobs = async (searchInput = null) => {
     try {
       setLoading(true);
       const { data } = await userAxiosInstance.get("/getJobPosts", { params: { userId: user.userId } });
-      if(data?.jobPosts) {
+      if (data?.jobPosts) {
         setJobs(data.jobPosts);
         setFilteredJobs(data.jobPosts);
         console.log("RESULT", data.jobPosts)
@@ -179,6 +207,9 @@ const AllJobsPage = () => {
     setFilteredJobs(jobs);
   };
 
+
+
+
   // Pagination Logic
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
@@ -200,97 +231,99 @@ const AllJobsPage = () => {
           className="flex flex-col md:flex-row gap-3"
         >
           {/* Filters Section */}
-          <motion.div
-            variants={itemVariants}
-            className="w-full md:w-1/4 bg-white p-4 rounded-md shadow-md"
-          >
-            <h2 className="text-lg font-semibold mb-4">Filters</h2>
-            <div className="space-y-4">
-              {/* Location Filter */}
-              <motion.div variants={itemVariants}>
-                <label className="block text-gray-700 font-medium mb-1">
-                  Location
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                >
-                  <option value="">Select Location</option>
-                  {Array.from(new Set(jobs.map((job) => job.city))).map(
-                    (city, index) => (
-                      <option key={index} value={city}>
-                        {city}
-                      </option>
+          {!isMobile && (
+            <motion.div
+              variants={itemVariants}
+              className="w-full md:w-1/4 bg-white p-4 rounded-md shadow-md"
+            >
+              <h2 className="text-lg font-semibold mb-4">Filters</h2>
+              <div className="space-y-4">
+                {/* Location Filter */}
+                <motion.div variants={itemVariants}>
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Location
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                  >
+                    <option value="">Select Location</option>
+                    {Array.from(new Set(jobs.map((job) => job.city))).map(
+                      (city, index) => (
+                        <option key={index} value={city}>
+                          {city}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </motion.div>
+
+                {/* Job Type Filter */}
+                <motion.div variants={itemVariants}>
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Job Type
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={jobType}
+                    onChange={(e) => setJobType(e.target.value)}
+                  >
+                    <option value="">Select Job Type</option>
+                    {Array.from(new Set(jobs.map((job) => job.jobTitle))).map(
+                      (type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </motion.div>
+
+                {/* Experience Level Filter */}
+                <motion.div variants={itemVariants}>
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Experience Level
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={experienceLevel}
+                    onChange={(e) => setExperienceLevel(e.target.value)}
+                  >
+                    <option value="">Select Experience</option>
+                    {Array.from(
+                      new Set(jobs.flatMap((job) => job.experienceRequired))
                     )
-                  )}
-                </select>
-              </motion.div>
+                      .sort((a, b) => a - b)
+                      .map((level) => (
+                        <option key={level} value={level}>
+                          {level} years
+                        </option>
+                      ))}
+                  </select>
+                </motion.div>
 
-              {/* Job Type Filter */}
-              <motion.div variants={itemVariants}>
-                <label className="block text-gray-700 font-medium mb-1">
-                  Job Type
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={jobType}
-                  onChange={(e) => setJobType(e.target.value)}
-                >
-                  <option value="">Select Job Type</option>
-                  {Array.from(new Set(jobs.map((job) => job.jobTitle))).map(
-                    (type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    )
-                  )}
-                </select>
-              </motion.div>
+                {/* Filter Button */}
+                <div className="flex gap-2 items-center">
+                  <motion.button
+                    variants={itemVariants}
+                    className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition text-center"
+                    onClick={handleFilter}
+                  >
+                    Filter
+                  </motion.button>
 
-              {/* Experience Level Filter */}
-              <motion.div variants={itemVariants}>
-                <label className="block text-gray-700 font-medium mb-1">
-                  Experience Level
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={experienceLevel}
-                  onChange={(e) => setExperienceLevel(e.target.value)}
-                >
-                  <option value="">Select Experience</option>
-                  {Array.from(
-                    new Set(jobs.flatMap((job) => job.experienceRequired))
-                  )
-                    .sort((a, b) => a - b)
-                    .map((level) => (
-                      <option key={level} value={level}>
-                        {level} years
-                      </option>
-                    ))}
-                </select>
-              </motion.div>
-
-              {/* Filter Button */}
-              <div className="flex gap-2 items-center">
-                <motion.button
-                  variants={itemVariants}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition text-center"
-                  onClick={handleFilter}
-                >
-                  Filter
-                </motion.button>
-
-                <motion.button
-                  variants={itemVariants}
-                  className="w-10 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center justify-center"
-                  onClick={clearAll}
-                >
-                  <RxCross2 className="text-white text-lg" />
-                </motion.button>
+                  <motion.button
+                    variants={itemVariants}
+                    className="w-10 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center justify-center"
+                    onClick={clearAll}
+                  >
+                    <RxCross2 className="text-white text-lg" />
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
 
           {/* Search Section */}
           <motion.div variants={itemVariants} className="w-full">
@@ -302,9 +335,8 @@ const AllJobsPage = () => {
                 >
                   <div className="flex items-center">
                     <FaSearch
-                      className={`text-gray-500 transition-all ${
-                        showSearchBox ? "mr-0" : "mr-2"
-                      }`}
+                      className={`text-gray-500 transition-all ${showSearchBox ? "mr-0" : "mr-2"
+                        }`}
                     />
                     {!showSearchBox && (
                       <span className="text-gray-600">
@@ -315,9 +347,8 @@ const AllJobsPage = () => {
                   {searchTerm && (
                     <RxCross2
                       onClick={clearSearchTerm}
-                      className={`text-gray-500 transition-all ${
-                        showSearchBox ? "mr-0" : "mr-2"
-                      }`}
+                      className={`text-gray-500 transition-all ${showSearchBox ? "mr-0" : "mr-2"
+                        }`}
                     />
                   )}
                 </div>
@@ -342,11 +373,10 @@ const AllJobsPage = () => {
                       <label
                         htmlFor="designation"
                         className={`absolute left-3 text-gray-500 text-base transition-all 
-                        ${
-                          searchTerm
+                        ${searchTerm
                             ? "top-1 text-sm text-blue-500"
                             : "top-4 text-gray-400"
-                        } 
+                          } 
                         peer-focus:top-1 peer-focus:text-sm peer-focus:text-blue-500`}
                       >
                         Enter job title
@@ -364,32 +394,23 @@ const AllJobsPage = () => {
                 )}
               </div>
 
-              {/* View Toggle Buttons */}
-              {/* <motion.div
+              {/* filter button */}
+              <motion.div
                 variants={itemVariants}
                 className="w-1/4 relative flex justify-end mb-6"
               >
-                <button
-                  className={`py-3 px-4 rounded-l-md ${
-                    viewMode === "grid"
-                      ? "bg-blue-600 border text-white"
-                      : "bg-gray-300"
-                  }`}
-                  onClick={() => setViewMode("grid")}
-                >
-                  <FaTh />
-                </button>
-                <button
-                  className={`py-3 px-4 rounded-r-md ${
-                    viewMode === "list"
-                      ? "bg-blue-600 border text-white"
-                      : "bg-gray-300"
-                  }`}
-                  onClick={() => setViewMode("list")}
-                >
-                  <FaList />
-                </button>
-              </motion.div> */}
+                {/* Filter Button - hidden on desktop, shown on mobile */}
+                {isMobile && (
+                  <button
+                    className="py-1 px-3 flex items-center gap-1 rounded-lg border border-blue-600 text-blue-600 md:hidden"
+                    onClick={() => setShowFilterModal(true)}
+                  >
+                    Filter <MdFilterList />
+                  </button>
+                )}
+
+
+              </motion.div>
             </div>
 
             {/* Job Listings */}
@@ -416,7 +437,7 @@ const AllJobsPage = () => {
                       variants={itemVariants}
                       className="flex justify-center"
                     >
-                      <JobCard job={job} layout={viewMode}/>
+                      <JobCard job={job} layout={viewMode} />
                     </motion.div>
                   ))}
                 </motion.div>
@@ -440,11 +461,10 @@ const AllJobsPage = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentPage(index + 1)}
-                      className={`px-4 py-2 mx-1 rounded ${
-                        currentPage === index + 1
-                          ? "bg-primary text-white"
-                          : "bg-gray-300"
-                      }`}
+                      className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1
+                        ? "bg-primary text-white"
+                        : "bg-gray-300"
+                        }`}
                     >
                       {index + 1}
                     </button>
@@ -474,6 +494,108 @@ const AllJobsPage = () => {
           </motion.div>
         </motion.div>
       </div>
+      {isMobile && showFilterModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white w-11/12 max-w-md p-4 rounded-lg shadow-lg"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Filters</h2>
+              <button onClick={() => setShowFilterModal(false)}>
+                <RxCross2 className="text-xl" />
+              </button>
+            </div>
+            <div className="space-y-4">
+            <motion.div variants={itemVariants}>
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Location
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                  >
+                    <option value="">Select Location</option>
+                    {Array.from(new Set(jobs.map((job) => job.city))).map(
+                      (city, index) => (
+                        <option key={index} value={city}>
+                          {city}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </motion.div>
+
+                {/* Job Type Filter */}
+                <motion.div variants={itemVariants}>
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Job Type
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={jobType}
+                    onChange={(e) => setJobType(e.target.value)}
+                  >
+                    <option value="">Select Job Type</option>
+                    {Array.from(new Set(jobs.map((job) => job.jobTitle))).map(
+                      (type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </motion.div>
+
+                {/* Experience Level Filter */}
+                <motion.div variants={itemVariants}>
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Experience Level
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={experienceLevel}
+                    onChange={(e) => setExperienceLevel(e.target.value)}
+                  >
+                    <option value="">Select Experience</option>
+                    {Array.from(
+                      new Set(jobs.flatMap((job) => job.experienceRequired))
+                    )
+                      .sort((a, b) => a - b)
+                      .map((level) => (
+                        <option key={level} value={level}>
+                          {level} years
+                        </option>
+                      ))}
+                  </select>
+                </motion.div>
+
+                {/* Filter Button */}
+                <div className="flex gap-2 items-center">
+                  <motion.button
+                    variants={itemVariants}
+                    className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition text-center"
+                    onClick={handleFilter}
+                  >
+                    Filter
+                  </motion.button>
+
+                  <motion.button
+                    variants={itemVariants}
+                    className="w-10 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center justify-center"
+                    onClick={clearAll}
+                  >
+                    <RxCross2 className="text-white text-lg" />
+                  </motion.button>
+                </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
     </motion.div>
   );
 };
