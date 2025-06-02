@@ -15,22 +15,22 @@ const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const keralaDistricts = [
-    "Alappuzha",
-    "Ernakulam",
-    "Idukki",
-    "Kannur",
-    "Kasaragod",
-    "Kollam",
-    "Kottayam",
-    "Kozhikode",
-    "Malappuram",
-    "Palakkad",
-    "Pathanamthitta",
-    "Thiruvananthapuram",
-    "Thrissur",
-    "Wayanad",
-  ];
+  // const keralaDistricts = [
+  //   "Alappuzha",
+  //   "Ernakulam",
+  //   "Idukki",
+  //   "Kannur",
+  //   "Kasaragod",
+  //   "Kollam",
+  //   "Kottayam",
+  //   "Kozhikode",
+  //   "Malappuram",
+  //   "Palakkad",
+  //   "Pathanamthitta",
+  //   "Thiruvananthapuram",
+  //   "Thrissur",
+  //   "Wayanad",
+  // ];
 
   const showPasswordFunction = () => {
     var x = document.getElementById("password");
@@ -61,6 +61,7 @@ const Register = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      state: "",
       district: "",
     },
     validationSchema: Yup.object({
@@ -84,13 +85,24 @@ const Register = () => {
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("password"), null], "Passwords must match")
         .required("Confirm password is required"),
-      district: Yup.string().required("District is required"),
+      state: Yup.string()
+        .trim()
+        .min(1, "State must be at least 1 characters")
+        .max(50, "State must not exceed 50 characters")
+        .required("State is required"),
+      district: Yup.string()
+        .trim()
+        .min(1, "District must be at least 1 characters")
+        .max(50, "District must not exceed 50 characters")
+        .required("District is required"),
     }),
     onSubmit: async (values) => {
       try {
+        const location = `${values.district}, ${values.state}`;
+
         const payload = {
           name: values.name,
-          location: values.district,
+          location,
           email: values.email,
           password: values.password,
           phone: values.phone,
@@ -101,7 +113,8 @@ const Register = () => {
           navigate("/employer/otp");
         }
       } catch (err) {
-        toast.error(err.message || "An error occurred");
+        console.log("err", err);
+        toast.error(err.response.data.message || "An error occurred");
       }
     },
   });
@@ -240,7 +253,77 @@ const Register = () => {
               </div>
             </motion.div>
 
-            <motion.div className="mb-3" variants={itemVariants}>
+            <motion.div className="md:flex gap-5" variants={itemVariants}>
+              <div className="mb-3 md:w-full">
+                <label
+                  htmlFor="state"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  State
+                </label>
+                <input
+                  type="text"
+                  id="state"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
+                  placeholder="Enter your state"
+                  aria-required="true"
+                  value={formik.values.state}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  name="state"
+                />
+                <AnimatePresence>
+                  {formik.touched.state && formik.errors.state && (
+                    <motion.div
+                      className="text-red-500 text-[13px]"
+                      variants={errorVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                    >
+                      {formik.errors.state}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+
+            <motion.div className="md:flex gap-5" variants={itemVariants}>
+              <div className="mb-3 md:w-full">
+                <label
+                  htmlFor="district"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  District
+                </label>
+                <input
+                  type="text"
+                  id="district"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
+                  placeholder="Enter your district"
+                  aria-required="true"
+                  value={formik.values.district}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  name="district"
+                />
+                <AnimatePresence>
+                  {formik.touched.district && formik.errors.district && (
+                    <motion.div
+                      className="text-red-500 text-[13px]"
+                      variants={errorVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                    >
+                      {formik.errors.district}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+
+            {/* <motion.div className="mb-3" variants={itemVariants}>
               <label
                 htmlFor="district"
                 className="block text-sm font-medium text-gray-700"
@@ -275,7 +358,7 @@ const Register = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </motion.div> */}
 
             <motion.div className="mb-3" variants={itemVariants}>
               <label
@@ -427,17 +510,18 @@ const Register = () => {
                 </motion.button>
               </div>
               <AnimatePresence>
-                {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                  <motion.div
-                    className="text-red-500 text-[13px]"
-                    variants={errorVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                  >
-                    {formik.errors.confirmPassword}
-                  </motion.div>
-                )}
+                {formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword && (
+                    <motion.div
+                      className="text-red-500 text-[13px]"
+                      variants={errorVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                    >
+                      {formik.errors.confirmPassword}
+                    </motion.div>
+                  )}
               </AnimatePresence>
             </motion.div>
 

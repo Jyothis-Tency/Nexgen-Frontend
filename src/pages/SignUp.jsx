@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import GrapeAnimation from "../components/GrapeAnimation";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,6 +16,7 @@ import { userGoogleLoginAction } from "@/redux/actions/userAction";
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -85,7 +88,10 @@ const SignupPage = () => {
     }),
     onSubmit: async (values) => {
       try {
-        console.log(values);
+        setIsLoading(true);
+        console.log("=== USER SIGNUP STARTED ===");
+        console.log("Form values:", values);
+
         const payload = {
           firstName: values.firstName,
           lastName: values.lastName,
@@ -94,16 +100,46 @@ const SignupPage = () => {
           password: values.password,
         };
 
-        const { data } = await userAxiosInstance.post("/signup", payload);
-        if (data) {
-          localStorage.setItem("email", values.email);
-          navigate("/otp-verification");
-        }
+        console.log("Payload to send:", payload);
 
-        if (loading) return <p>Loading...</p>;
-        if (error) return <p>Error: {error}</p>;
+        const { data } = await userAxiosInstance.post("/signup", payload);
+        console.log("=== SIGNUP RESPONSE ===");
+        console.log("Response data:", data);
+
+        // Check for successful response - backend returns { status: true/false, message: "..." }
+        if (data && (data.status === true || data.status === "true")) {
+          // Store email with the correct key that OTP verification expects
+          localStorage.setItem("user-email", values.email);
+          console.log(
+            "Email stored in localStorage as 'user-email':",
+            values.email
+          );
+
+          toast.success(
+            data.message || "Registration successful! OTP sent to your email."
+          );
+
+          setTimeout(() => {
+            navigate("/otp-verification", {
+              state: { email: values.email },
+            });
+          }, 1500);
+        } else {
+          // Handle case where status is false but no error was thrown
+          throw new Error(
+            data?.message || "Registration failed. Please try again."
+          );
+        }
       } catch (err) {
-        toast.warning(err.response.data.message || "An error occured");
+        console.error("=== SIGNUP ERROR ===");
+        console.error("Error object:", err);
+        console.error("Error response:", err.response?.data);
+
+        const errorMessage =
+          err.response?.data?.message || err.message || "An error occurred";
+        toast.error(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
     },
   });
@@ -133,7 +169,6 @@ const SignupPage = () => {
       {/* Left Section */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary flex-col justify-center items-center text-center text-white p-6 lg:p-10">
         <div className="max-w-md">
-
           <GrapeAnimation className="sm:hidden" />
 
           <h2 className="text-2xl lg:text-3xl font-semibold mb-4">
@@ -144,7 +179,6 @@ const SignupPage = () => {
             Discover the best opportunities and connect with employers who value
             your skills.
           </p>
-
         </div>
       </div>
 
@@ -154,7 +188,7 @@ const SignupPage = () => {
           {/* Logo */}
           <Link to="/">
             <h1 className="text-2xl font-bold text-primary mb-8 text-center lg:text-left cursor-pointer">
-            Techpath
+              Techpath
             </h1>
           </Link>
 
@@ -372,9 +406,12 @@ const SignupPage = () => {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-primary text-white rounded-md text-sm font-medium hover:bg-blue-700 mt-2"
+              disabled={isLoading}
+              className={`w-full py-2 px-4 bg-primary text-white rounded-md text-sm font-medium hover:bg-blue-700 mt-2 ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Sign Up
+              {isLoading ? "Creating Account..." : "Sign Up"}
             </button>
           </form>
 

@@ -1,9 +1,9 @@
-import { createAsyncThunk, isRejectedWithValue } from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
 
 export const userLoginAction = createAsyncThunk(
   "user/login",
-  async ({ email, password }, { isRejectedWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await userAxiosInstance.post("/login", {
         email,
@@ -24,8 +24,41 @@ export const userLoginAction = createAsyncThunk(
   }
 );
 
+// New action for OTP verification
+export const userOtpVerificationAction = createAsyncThunk(
+  "user/otpVerification",
+  async ({ email, otp }, { rejectWithValue }) => {
+    try {
+      console.log("=== OTP VERIFICATION ACTION ===");
+      console.log("Email:", email, "OTP:", otp);
+
+      const response = await userAxiosInstance.post("/verify-otp", {
+        email,
+        otp,
+      });
+
+      console.log("OTP verification response:", response);
+
+      if (response.status === 200 && response.data.status) {
+        return {
+          success: true,
+          message: "OTP verification successful",
+          userData: response.data.cred,
+        };
+      } else {
+        throw new Error(response.data.message || "OTP verification failed");
+      }
+    } catch (error) {
+      console.error("Error in userOtpVerificationAction thunk:", error);
+      throw new Error(
+        error.response?.data?.message || "OTP verification failed"
+      );
+    }
+  }
+);
+
 export const userGoogleLoginAction = createAsyncThunk(
-  "user/login",
+  "user/googleLogin",
   async (id_token, { rejectWithValue }) => {
     try {
       const response = await userAxiosInstance.post("/google-login", {
