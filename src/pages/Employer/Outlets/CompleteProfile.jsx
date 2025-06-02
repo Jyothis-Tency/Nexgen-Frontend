@@ -488,7 +488,7 @@ export default function EmployerCompleteProfile() {
   }, [profileImagePreview, companyLogoPreview]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pt-24 pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pt-8 pb-8">
       {/* Steps indicator */}
       <div className="bg-blue-600 py-6 px-4 mb-8 rounded-lg max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold text-white text-center mb-2">
