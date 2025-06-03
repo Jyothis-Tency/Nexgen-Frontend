@@ -54,22 +54,14 @@ const LoginPage = () => {
   // Function to handle post-login navigation
   const handlePostLoginNavigation = () => {
     const pendingJobId = localStorage.getItem("pendingJobId");
-    const pendingAction = localStorage.getItem("pendingAction");
 
     if (pendingJobId) {
       // Clear the stored values
       localStorage.removeItem("pendingJobId");
       localStorage.removeItem("pendingAction");
 
-      // Navigate based on the pending action
-      if (pendingAction === "apply") {
-        // For apply action, we need to get job details first, so go to job details
-        // and let the user apply from there, or directly to application page
-        navigate(`/job-application/${pendingJobId}`);
-      } else {
-        // Default to job details page
-        navigate(`/job-details/${pendingJobId}`);
-      }
+      // Always navigate to job details page, regardless of which button was clicked
+      navigate(`/job-details/${pendingJobId}`);
     } else {
       // No pending job, go to home
       navigate("/");
