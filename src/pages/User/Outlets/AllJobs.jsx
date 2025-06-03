@@ -327,10 +327,10 @@ const AllJobsPage = () => {
 
           {/* Search Section */}
           <motion.div variants={itemVariants} className="w-full">
-          <div className="px-6 sm:px-6 md:px-8">
+          {/* <div className="px-4 sm:px-6 md:px-8"> */}
             <div className="flex gap-3 mb-4 items-stretch">
               {/* Search Bar */}
-              <div className="flex-1">
+              <div className="flex-1 ml-5">
                 <div className="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden shadow-sm">
                   <input
                     type="text"
@@ -368,16 +368,16 @@ const AllJobsPage = () => {
               {isMobile && (
                 <motion.div variants={itemVariants} className="flex-shrink-0">
                   <button
-                    className="h-full px-3 flex items-center gap-2 rounded-lg border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 transition-colors font-medium"
+                    className="h-full px-3 mr-5 flex items-center gap-2 rounded-lg border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 transition-colors font-medium"
                     onClick={() => setShowFilterModal(true)}
                   >
                     <MdFilterList className="text-lg" />
                     <span className="text-sm">Filter</span>
                   </button>
-                </motion.div>
+                 </motion.div>
               )}
             </div>
-            </div>
+            {/* </div> */}
 
 
             {/* Job Listings */}
