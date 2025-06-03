@@ -93,11 +93,11 @@ const AllJobsPage = () => {
     } else {
       document.body.classList.remove("overflow-hidden");
     }
-  
-    
+
+
     return () => document.body.classList.remove("overflow-hidden");
   }, [showFilterModal]);
-  
+
 
 
   // useEffect(() => {
@@ -327,72 +327,30 @@ const AllJobsPage = () => {
 
           {/* Search Section */}
           <motion.div variants={itemVariants} className="w-full">
-            <div className="flex flex-row gap-3 mx-4">
-              <div className="w-3/4 relative mb-6" ref={searchBoxRef}>
-                <div
-                  className="flex justify-between items-center rounded-md p-3 bg-white cursor-pointer"
-                  onClick={() => setShowSearchBox(!showSearchBox)}
-                >
-                  <div className="flex items-center">
-                    <FaSearch
-                      className={`text-gray-500 transition-all ${showSearchBox ? "mr-0" : "mr-2"
-                        }`}
-                    />
-                    {!showSearchBox && (
-                      <span className="text-gray-600">
-                        {searchTerm ? `${searchTerm}` : "Search job"}
-                      </span>
-                    )}
-                  </div>
-                  {searchTerm && (
-                    <RxCross2
-                      onClick={clearSearchTerm}
-                      className={`text-gray-500 transition-all ${showSearchBox ? "mr-0" : "mr-2"
-                        }`}
-                    />
-                  )}
-                </div>
-
-                {showSearchBox && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute top-full left-0 w-full bg-white p-4 shadow-md rounded-md mt-0 z-10"
+            <div className="flex flex-row gap-3">
+              <div className="w-full md:w-3/4 mb-6">
+                <div className="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden shadow-sm">
+                  <input
+                    type="text"
+                    className="flex-grow min-w-0 px-4 py-2 focus:outline-none text-sm"
+                    placeholder="Search job title"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSearch();
+                    }}
+                  />
+                  <button
+                    onClick={handleSearch}
+                    className="bg-blue-600 text-white px-4 py-3 min-w-[50px] h-full hover:bg-blue-700 transition"
+                    title="Search"
                   >
-                    {/* Designation/Company Input */}
-                    <div className="relative w-full mb-4">
-                      <input
-                        type="text"
-                        id="designation"
-                        className="w-full px-3 pt-5 pb-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 peer"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder=""
-                      />
-                      <label
-                        htmlFor="designation"
-                        className={`absolute left-3 text-gray-500 text-base transition-all 
-                        ${searchTerm
-                            ? "top-1 text-sm text-blue-500"
-                            : "top-4 text-gray-400"
-                          } 
-                        peer-focus:top-1 peer-focus:text-sm peer-focus:text-blue-500`}
-                      >
-                        Enter job title
-                      </label>
-                    </div>
-
-                    {/* Search Button */}
-                    <button
-                      className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-                      onClick={handleSearch}
-                    >
-                      Search
-                    </button>
-                  </motion.div>
-                )}
+                    <FaSearch />
+                  </button>
+                </div>
               </div>
+
+
 
               {/* filter button */}
               <motion.div
@@ -509,88 +467,88 @@ const AllJobsPage = () => {
               </button>
             </div>
             <div className="space-y-4">
-            <motion.div variants={itemVariants}>
-                  <label className="block text-gray-700 font-medium mb-1">
-                    Location
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                  >
-                    <option value="">Select Location</option>
-                    {Array.from(new Set(jobs.map((job) => job.city))).map(
-                      (city, index) => (
-                        <option key={index} value={city}>
-                          {city}
-                        </option>
-                      )
-                    )}
-                  </select>
-                </motion.div>
-
-                {/* Job Type Filter */}
-                <motion.div variants={itemVariants}>
-                  <label className="block text-gray-700 font-medium mb-1">
-                    Job Type
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={jobType}
-                    onChange={(e) => setJobType(e.target.value)}
-                  >
-                    <option value="">Select Job Type</option>
-                    {Array.from(new Set(jobs.map((job) => job.jobTitle))).map(
-                      (type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      )
-                    )}
-                  </select>
-                </motion.div>
-
-                {/* Experience Level Filter */}
-                <motion.div variants={itemVariants}>
-                  <label className="block text-gray-700 font-medium mb-1">
-                    Experience Level
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={experienceLevel}
-                    onChange={(e) => setExperienceLevel(e.target.value)}
-                  >
-                    <option value="">Select Experience</option>
-                    {Array.from(
-                      new Set(jobs.flatMap((job) => job.experienceRequired))
+              <motion.div variants={itemVariants}>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Location
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                >
+                  <option value="">Select Location</option>
+                  {Array.from(new Set(jobs.map((job) => job.city))).map(
+                    (city, index) => (
+                      <option key={index} value={city}>
+                        {city}
+                      </option>
                     )
-                      .sort((a, b) => a - b)
-                      .map((level) => (
-                        <option key={level} value={level}>
-                          {level} years
-                        </option>
-                      ))}
-                  </select>
-                </motion.div>
+                  )}
+                </select>
+              </motion.div>
 
-                {/* Filter Button */}
-                <div className="flex gap-2 items-center">
-                  <motion.button
-                    variants={itemVariants}
-                    className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition text-center"
-                    onClick={handleFilter}
-                  >
-                    Filter
-                  </motion.button>
+              {/* Job Type Filter */}
+              <motion.div variants={itemVariants}>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Job Type
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={jobType}
+                  onChange={(e) => setJobType(e.target.value)}
+                >
+                  <option value="">Select Job Type</option>
+                  {Array.from(new Set(jobs.map((job) => job.jobTitle))).map(
+                    (type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    )
+                  )}
+                </select>
+              </motion.div>
 
-                  <motion.button
-                    variants={itemVariants}
-                    className="w-10 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center justify-center"
-                    onClick={clearAll}
-                  >
-                    <RxCross2 className="text-white text-lg" />
-                  </motion.button>
-                </div>
+              {/* Experience Level Filter */}
+              <motion.div variants={itemVariants}>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Experience Level
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={experienceLevel}
+                  onChange={(e) => setExperienceLevel(e.target.value)}
+                >
+                  <option value="">Select Experience</option>
+                  {Array.from(
+                    new Set(jobs.flatMap((job) => job.experienceRequired))
+                  )
+                    .sort((a, b) => a - b)
+                    .map((level) => (
+                      <option key={level} value={level}>
+                        {level} years
+                      </option>
+                    ))}
+                </select>
+              </motion.div>
+
+              {/* Filter Button */}
+              <div className="flex gap-2 items-center">
+                <motion.button
+                  variants={itemVariants}
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition text-center"
+                  onClick={handleFilter}
+                >
+                  Filter
+                </motion.button>
+
+                <motion.button
+                  variants={itemVariants}
+                  className="w-10 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center justify-center"
+                  onClick={clearAll}
+                >
+                  <RxCross2 className="text-white text-lg" />
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         </div>
