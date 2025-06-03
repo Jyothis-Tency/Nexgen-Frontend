@@ -1,22 +1,9 @@
-import React from "react";
+"use client";
+
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { toast } from "sonner";
 import { WhatsApp } from "@mui/icons-material";
-
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle
-// } from "../ui/card";
-
-// import {
-//   Avatar,
-//   AvatarFallback,
-//   AvatarImage
-// } from "../ui/avatar";
-
 import { MdPlace } from "react-icons/md";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { IoBriefcase } from "react-icons/io5";
@@ -24,25 +11,42 @@ import { calculateTimeAgo } from "@/utils/dateFormation";
 
 const JobCard = ({ job, layout }) => {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user.seekerInfo);
+
+  // Check if user is logged in
+  const isUserLoggedIn = () => {
+    const token = localStorage.getItem("token");
+    return !!token && !!user?.userId; // Returns true if token exists and user is loaded
+  };
 
   const jobDetailNavigation = () => {
     navigate(`/job-details/${job._id}`);
   };
+
   console.log("Job Card Props", job.employer);
+
   const handleApplyJob = (job) => {
+    if (!isUserLoggedIn()) {
+      // User is not logged in, store job ID and redirect to login
+      localStorage.setItem("pendingJobId", job._id);
+      toast.info("Please login to apply for this job");
+      navigate("/login");
+      return;
+    }
+
+    // User is logged in, proceed with job application
     navigate(`/job-application/${job._id}`, {
       state: {
         jobTitle: job?.jobTitle,
         companyName: job?.companyName,
         phone: job?.phone,
         companyLocation: `${job?.state}, ${job?.city}`,
-        employerId: job?.employerId
-      }
+        employerId: job?.employerId,
+      },
     });
   };
 
   console.log("Job Card Rendered", job);
-  
 
   return (
     <article
@@ -109,7 +113,9 @@ const JobCard = ({ job, layout }) => {
             : "bg-green-500 text-white hover:bg-white hover:border-green-500 hover:text-green-500"
         }`}
             disabled={job?.alreadyApplied}
-            aria-label={job?.alreadyApplied ? "Already applied" : "Apply to job"}
+            aria-label={
+              job?.alreadyApplied ? "Already applied" : "Apply to job"
+            }
             onClick={
               !job.alreadyApplied ? () => handleApplyJob(job) : undefined
             }
@@ -134,7 +140,6 @@ const JobCard = ({ job, layout }) => {
             rel="noopener noreferrer"
             className="text-green-600 hover:text-green-700 transition-colors flex items-center gap-1"
           >
-            
             <WhatsApp
               style={{
                 color: "#25D366",
