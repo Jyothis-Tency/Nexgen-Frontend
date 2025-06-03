@@ -11,29 +11,22 @@ const JobCard = ({ job, layout }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.seekerInfo);
 
+  // Job details can be viewed by anyone - no auth check needed
   const jobDetailNavigation = () => {
-    // Check if user is logged in
-    if (!user || !user.userId) {
-      // Store job ID in localStorage for redirect after login
-      localStorage.setItem("pendingJobId", job._id);
-      localStorage.setItem("pendingAction", "details");
-      navigate("/login");
-      return;
-    }
-
     navigate(`/job-details/${job._id}`);
   };
 
+  // Only apply action requires authentication
   const handleApplyJob = (job) => {
     // Check if user is logged in
     if (!user || !user.userId) {
       // Store job ID in localStorage for redirect after login
       localStorage.setItem("pendingJobId", job._id);
-      localStorage.setItem("pendingAction", "apply");
       navigate("/login");
       return;
     }
 
+    // User is logged in, proceed to application
     navigate(`/job-application/${job._id}`, {
       state: {
         jobTitle: job?.jobTitle,
@@ -119,7 +112,7 @@ const JobCard = ({ job, layout }) => {
             {job?.alreadyApplied ? "Applied" : "Apply"}
           </button>
 
-          {/* Job Details Button */}
+          {/* Job Details Button - No auth required */}
           <button
             className="bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg 
         hover:bg-white border hover:border-blue-500 hover:text-blue-500 transition w-full sm:w-auto"

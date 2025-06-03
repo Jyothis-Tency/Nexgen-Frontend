@@ -56,11 +56,10 @@ const LoginPage = () => {
     const pendingJobId = localStorage.getItem("pendingJobId");
 
     if (pendingJobId) {
-      // Clear the stored values
+      // Clear the stored job ID
       localStorage.removeItem("pendingJobId");
-      localStorage.removeItem("pendingAction");
 
-      // Always navigate to job details page, regardless of which button was clicked
+      // Navigate to job details page where user can then apply
       navigate(`/job-details/${pendingJobId}`);
     } else {
       // No pending job, go to home
