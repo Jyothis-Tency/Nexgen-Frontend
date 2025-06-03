@@ -12,6 +12,7 @@ export default function AdBannerCarousel({
   const [touchEnd, setTouchEnd] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const carouselRef = useRef(null);
+  const [isHolding, setIsHolding] = useState(false);
 
   // Check if device is mobile
   useEffect(() => {
@@ -40,7 +41,7 @@ export default function AdBannerCarousel({
 
   // Auto slide functionality
   useEffect(() => {
-    if (banners.length <= (isMobile ? 1 : 2)) return;
+    if (banners.length <= (isMobile ? 1 : 2) || isHolding) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => {
@@ -50,7 +51,7 @@ export default function AdBannerCarousel({
     }, autoSlideInterval);
 
     return () => clearInterval(interval);
-  }, [banners.length, autoSlideInterval, isMobile]);
+  }, [banners.length, autoSlideInterval, isMobile, isHolding]);
 
   // Handle manual navigation
   const goToSlide = (index) => {
@@ -98,6 +99,14 @@ export default function AdBannerCarousel({
     setTouchEnd(null);
   };
 
+  const handlePressStart = () => {
+    setIsHolding(true);
+  };
+
+  const handlePressEnd = () => {
+    setIsHolding(false);
+  };
+
   // If no banners, don't render anything
   if (!banners.length) return null;
 
@@ -131,24 +140,26 @@ export default function AdBannerCarousel({
                   isMobile ? "w-full" : "w-1/2"
                 }`}
               >
-                <a
-                  href={banner.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full h-full p-2"
+                <div
+                  className="block w-full h-full p-2 cursor-default"
+                  onTouchStart={handlePressStart}
+                  onTouchEnd={handlePressEnd}
+                  onMouseDown={handlePressStart}
+                  onMouseUp={handlePressEnd}
+                  onMouseLeave={handlePressEnd}
                 >
                   <img
                     src={banner.imageUrl || "/placeholder.svg"}
                     alt={banner.altText}
-                    className="w-full h-full object-contain rounded-md"
+                    className="w-full h-full object-contain rounded-md select-none"
                   />
-                </a>
+                </div>
               </div>
             ))}
           </div>
 
           {/* Navigation arrows - only visible on desktop */}
-          {banners.length > (isMobile ? 1 : 2) && (
+          {!isMobile && banners.length > 2 && (
             <>
               <button
                 onClick={goToPrevious}

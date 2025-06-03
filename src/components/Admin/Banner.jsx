@@ -316,7 +316,7 @@ const BannerManagement = () => {
                           Click to upload or drag and drop
                         </span>
                         <span className="text-xs text-gray-400 mt-1">
-                          PNG, JPG or GIF (Recommended: 1200×200px)
+                          Recommended: 400 x 200 px
                         </span>
                         <input
                           id="image-upload"
