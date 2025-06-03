@@ -327,7 +327,7 @@ const AllJobsPage = () => {
 
           {/* Search Section */}
           <motion.div variants={itemVariants} className="w-full">
-          <div className="px-4 sm:px-6 md:px-8">
+          <div className="px-6 sm:px-6 md:px-8">
             <div className="flex gap-3 mb-4 items-stretch">
               {/* Search Bar */}
               <div className="flex-1">
