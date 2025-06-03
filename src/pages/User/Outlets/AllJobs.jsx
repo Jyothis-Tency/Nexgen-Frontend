@@ -330,11 +330,10 @@ const AllJobsPage = () => {
 
             <div className="sticky top-[64px] z-40 -mt-4 mb-5 px-4 w-full max-w-xl flex items-center gap-3">
               {/* Search Bar */}
-              {/* <div className="flex-1"> */}
                 <div className="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden shadow-sm">
                   <input
                     type="text"
-                    className="flex-grow min-w-0 px-4 py-2 focus:outline-none text-sm"
+                    className="flex-1 px-2 py-2 focus:outline-none text-sm min-w-0"
                     placeholder="Search job title"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -342,47 +341,44 @@ const AllJobsPage = () => {
                       if (e.key === "Enter") handleSearch();
                     }}
                   />
-                  {searchTerm ? (
-                                 <button
-                                 onClick={clearSearchTerm}
-                                 className="bg-blue-600 text-white px-4 py-3 min-w-[50px] h-full hover:bg-blue-700 transition"
-                                 title="Search"
-                               >
-                                 <RxCross2 />
-                               </button>
-                  ) : (
-                    <button
+
+                  {/* Clear Button - Always rendered, visibility toggled */}
+                  <button
+                    onClick={clearSearchTerm}
+                    className={`w-6 h-6 mx-1 text-gray-500 hover:text-red-500 transition flex items-center
+                       justify-center ${searchTerm ? "visible" : "invisible"
+                      }`}
+                    title="Clear"
+                  >
+                    <RxCross2 />
+                  </button>
+
+                  {/* Search Button */}
+                  <button
                     onClick={handleSearch}
-                    className="bg-blue-600 text-white px-4 py-3 min-w-[50px] h-full hover:bg-blue-700 transition"
+                    className="flex-shrink-0 bg-blue-600 text-white px-4 py-3.5 hover:bg-blue-700 transition"
                     title="Search"
                   >
                     <FaSearch />
                   </button>
-                  )}
- 
                 </div>
-              </div>
 
 
-
-              {/* filter button */}
-              <motion.div
-                variants={itemVariants}
-                className="w-1/4 relative flex justify-end mb-6"
-              >
-                {/* Filter Button - hidden on desktop, shown on mobile */}
-                {isMobile && (
+              {/* Mobile Filter Button */}
+              {isMobile && (
+                <motion.div variants={itemVariants} className="flex-shrink-0">
                   <button
-                    className="py-1 px-3 flex items-center gap-1 rounded-lg border border-blue-600 text-blue-600 md:hidden"
+                    className="h-full px-2 py-2.5 flex items-center gap-2 rounded-lg border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 transition-colors font-medium"
                     onClick={() => setShowFilterModal(true)}
                   >
-                    Filter <MdFilterList />
+                    <MdFilterList className="text-lg" />
+                    <span className="text-sm">Filter</span>
                   </button>
-                )}
-
-
-              </motion.div>
+                 </motion.div>
+              )}
             </div>
+            
+
 
             {/* Job Listings */}
             {loading ? (
