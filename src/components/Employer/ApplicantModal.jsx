@@ -1,242 +1,222 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { FaUser } from "react-icons/fa";
-import { FaPhone } from "react-icons/fa";
+import { FaUser, FaPhone } from "react-icons/fa";
 import { IoMail } from "react-icons/io5";
 import { FaLocationDot } from "react-icons/fa6";
 import { Button } from "@mui/material";
 import { toast } from "sonner";
 import useRequestUser from "@/hooks/useRequestUser";
+import { useLocation, useNavigate } from "react-router-dom";
 
-function ApplicantModal({
-  isDialogOpen,
-  setIsDialogOpen,
-  application,
-  fetchApplications,
-  setSelectedData,
-}) {
+function ApplicantPage() {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const application = state?.application;
+  console.log("APPLICAT", application);
   const [applicationStatus, setApplicationStatus] = useState("");
   const [isDecisionDialogOpen, setIsDecisionDialogOpen] = useState(false);
-  const { data, loading, error, sendRequest } = useRequestUser();
+  const { sendRequest } = useRequestUser();
 
   const handleDecision = async (applicationId) => {
-    if (applicationStatus) {
-      const applicationStatusData = {
-        applicationStatus: applicationStatus,
-      };
-
-      sendRequest({
-        url: `/employer/job-applications/${applicationId}/update_status`,
-        method: "POST",
-        data: applicationStatusData,
-        onSuccess: (data) => {
-          setSelectedData(null);
-          fetchApplications();
-          console.log("Application status successfully:", data);
-        },
-        onError: (err) =>
-          console.error("Error application status change:", err),
-      });
-    } else {
-      toast.error("Please select status option");
+    if (!applicationStatus) {
+      toast.error("Please select a status option.");
+      return;
     }
+
+    const applicationStatusData = { applicationStatus };
+
+    toast.promise(
+      new Promise((resolve, reject) => {
+        sendRequest({
+          url: `/employer/job-applications/${applicationId}/update_status`,
+          method: "POST",
+          data: applicationStatusData,
+          onSuccess: (data) => {
+            application.status = applicationStatus;
+            setIsDecisionDialogOpen(false);
+            resolve(data);
+          },
+          onError: (err) => {
+            reject(err);
+          },
+        });
+      }),
+      {
+        loading: "Updating status...",
+        success: "Status updated successfully!",
+        error: "Failed to update status.",
+      }
+    );
   };
 
-  if (application)
+  if (!application) {
     return (
-      <>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-[1000px] h-5/6 mx-3">
-            <DialogHeader>
-              <DialogTitle>View Application</DialogTitle>
-            </DialogHeader>
-            <div className="w-full md:grid-cols-2 grid-cols-1 space-y-2">
-              <div className="flex items-center">
-                <p className="text-2xl font-semibold leading-none tracking-tight">Status: <span className={application.status === "Shortlisted"? "text-green-500": application.status === "Rejected"?"text-red-500":"text-orange-500"}>{application.status}</span></p>
-              </div>
-              <div className="flex items-center md:justify-end  space-x-2">
-                {/* "flex items-end justify-end space-y-6 space-x-2" */}
-                <div className="md:w-1/3">
-                  <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={applicationStatus}
-                    onChange={(e) => setApplicationStatus(e.target.value)}
-                  >
-                    <option className="text-sm" value="">
-                      Change Status
-                    </option>
-                    <option className="text-sm" value="Shortlisted">
-                    Shortlist
-                    </option>
-                    <option className="text-sm" value="Rejected">
-                      Reject
-                    </option>
-                    <option className="text-sm" value="Pending">
-                      Pending
-                    </option>
-                  </select>
-                </div>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    if (applicationStatus) {
-                      setIsDecisionDialogOpen(true);
-                    } else {
-                      toast.error("Please select status option");
-                    }
-                  }}
-                  className="block text-gray-700 font-medium "
-                >
-                  Change status
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-4 py-4 overflow-y-scroll">
-              <Card className="w-full max-w-2xl mx-auto">
-                <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-6">
-                  <div className="grid gap-4">
-                    <div className="flex items-center gap-2">
-                      <FaUser className="h-4 w-4 text-muted-foreground" />
-                      <div className="font-medium">Name</div>
-                      <div className="text-muted-foreground">
-                        {application.name}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <FaPhone className="h-4 w-4 text-muted-foreground" />
-                      <div className="font-medium">Phone</div>
-                      <div className="text-muted-foreground">
-                        {application.phone}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <IoMail className="h-4 w-4 text-muted-foreground" />
-                      <div className="font-medium">Email</div>
-                      <div className="text-muted-foreground">
-                        {application.email}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <FaLocationDot className="h-4 w-4 text-muted-foreground" />
-                      <div className="font-medium">Location</div>
-                      <div className="text-muted-foreground">
-                        {application.location}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="w-full max-w-2xl mx-auto">
-                <CardHeader>
-                  <CardTitle>Documents</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-6">
-                  <div className="grid gap-4">
-                    {application.resume && (
-                      <div className="flex items-center gap-2">
-                        {/* <FileText className="h-4 w-4 text-muted-foreground" /> */}
-                        <div className="font-medium">Resume</div>
-                        <div className="text-muted-foreground">
-                          {application.resume}
-                        </div>
-                      </div>
-                    )}
-
-                    {application.resume && (
-                      <div className="flex items-center gap-2">
-                        {/* <FileText className="h-4 w-4 text-muted-foreground" /> */}
-                        <div className="font-medium">Additional File</div>
-                        <div className="text-muted-foreground">
-                          {application.resume}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="w-full max-w-2xl mx-auto">
-                <CardHeader>
-                  <CardTitle>Cover Letter</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-6">
-                  <div className="grid gap-4">
-                    {application.coverLetter && (
-                      <div className="grid gap-2">
-                        <div className="flex items-center gap-2">
-                          {/* <FileText className="h-4 w-4 text-muted-foreground" /> */}
-                          <div className="font-medium">Cover Letter</div>
-                        </div>
-                        <div className="text-muted-foreground whitespace-pre-wrap rounded-lg border bg-muted p-4">
-                          {application.coverLetter}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Status confirmation modal */}
-        <Dialog
-          open={isDecisionDialogOpen}
-          onOpenChange={setIsDecisionDialogOpen}
+      <div className="p-4">
+        <p className="text-red-500">No application data found.</p>
+        <button
+          className="text-blue-500 underline mt-4"
+          onClick={() => navigate(-1)}
         >
-          <DialogContent className="w-[1000px] ">
-            <DialogHeader>
-              <DialogTitle>Confirm Status</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              {applicationStatus === "Shortlisted" ? (
-                <p>
-                  Are you sure you want to shortlist this application? This action
-                  cannot be undone.
-                </p>
-              ) : applicationStatus === "Rejected" ? (
-                <p>
-                  Are you sure you want to reject this job? This action cannot
-                  be undone.
-                </p>
-              ) : (
-                <p>
-                  Are you sure you want to change the status to pending this
-                  job? This action cannot be undone.
-                </p>
-              )}
-              <div className="flex justify-end space-x-4">
-                <button
-                  onClick={() => setIsDecisionDialogOpen(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDecision(application?._id)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </>
+          Go Back
+        </button>
+      </div>
     );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-2">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-sm text-blue-600 hover:underline w-fit"
+        >
+          ← Back
+        </button>
+        <h1 className="text-2xl font-bold">Application Details</h1>
+        <div/>
+      </div>
+
+      {/* Status and Controls */}
+      <div className="flex flex-col md:flex-row justify-between mb-6 gap-4">
+        <div>
+          <p className="text-xl font-semibold">
+            Status:{" "}
+            <span
+              className={
+                application.status === "Shortlisted"
+                  ? "text-green-500"
+                  : application.status === "Rejected"
+                  ? "text-red-500"
+                  : "text-orange-500"
+              }
+            >
+              {application.status}
+            </span>
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <select
+            className="px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={applicationStatus}
+            onChange={(e) => setApplicationStatus(e.target.value)}
+          >
+            <option value="">Change Status</option>
+            <option value="Shortlisted">Shortlist</option>
+            <option value="Rejected">Reject</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (applicationStatus) setIsDecisionDialogOpen(true);
+              else toast.error("Please select status option");
+            }}
+          >
+            Change Status
+          </Button>
+        </div>
+      </div>
+
+      {/* Info Cards */}
+      <div className="space-y-6">
+        {/* Personal Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Personal Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-2">
+              <FaUser className="text-muted-foreground" />
+              <span className="font-medium">Name:</span>
+              <span>{application.name}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FaPhone className="text-muted-foreground" />
+              <span className="font-medium">Phone:</span>
+              <span>{application.phone}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <IoMail className="text-muted-foreground" />
+              <span className="font-medium">Email:</span>
+              <span>{application.email}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FaLocationDot className="text-muted-foreground" />
+              <span className="font-medium">Location:</span>
+              <span>{application.location}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Documents */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Documents</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {application.resume && (
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">Resume</span>
+                <span className="text-muted-foreground">
+                  {application.resume}
+                </span>
+              </div>
+            )}
+            {application.resume && (
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">Additional File</span>
+                <span className="text-muted-foreground">
+                  {application.resume}
+                </span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Cover Letter */}
+        {application.coverLetter && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Cover Letter</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="whitespace-pre-wrap border bg-gray-100 p-4 rounded-md text-sm">
+                {application.coverLetter}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Confirm Status Change Prompt */}
+      {isDecisionDialogOpen && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-md max-w-md md:w-[1000px] w-[350px] ">
+            <h2 className="text-lg font-semibold mb-4">Confirm Status</h2>
+            <p className="mb-6">
+              Are you sure you want to change the status to{" "}
+              <span className="font-semibold">{applicationStatus}</span>?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setIsDecisionDialogOpen(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDecision(application._id)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default ApplicantModal;
+export default ApplicantPage;

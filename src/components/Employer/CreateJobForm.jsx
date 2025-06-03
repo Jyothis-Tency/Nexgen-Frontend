@@ -309,7 +309,7 @@ function CreateJobForm({ selectedData = null, page = "create" }) {
             </div>
           </motion.div>
 
-          <motion.div className="flex gap-2 w-3/4" variants={itemVariants}>
+          <motion.div className="flex gap-2 w-full md:w-3/4" variants={itemVariants}>
             <TextField
               sx={{ width: 80 }}
               label="Country Code"

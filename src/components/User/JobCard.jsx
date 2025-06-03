@@ -46,21 +46,13 @@ const JobCard = ({ job, layout }) => {
 
   return (
     <article
-      className={`bg-white shadow-md rounded-2xl transition-all hover:shadow-lg 
-    ${
-      layout === "list"
-        ? "w-full flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 sm:p-6"
-        : "w-full max-w-sm mx-auto p-5"
-    }`}
+      className={`bg-white shadow-md rounded-2xl transition-all hover:shadow-lg
+         w-full max-w-sm mx-auto p-5`}
       aria-label="Job listing card"
     >
       {/* Logo Section */}
       <figure
-        className={`${
-          layout === "list"
-            ? "w-14 h-14 sm:w-16 sm:h-16 mb-3 sm:mb-0"
-            : "w-14 h-14 mb-3"
-        } 
+        className={` w-14 h-14 mb-3 
       bg-black rounded-full flex items-center justify-center flex-shrink-0`}
         aria-hidden="true"
       >
@@ -70,7 +62,7 @@ const JobCard = ({ job, layout }) => {
       </figure>
 
       {/* Job Info */}
-      <div className={`${layout === "list" ? "flex-1" : ""}`}>
+      <div className={``}>
         <h1 className="text-lg font-semibold text-gray-800">{job?.jobTitle}</h1>
         {/* <p className="text-sm text-gray-500">{job.companyName.toUpperCase()}</p> */}
 
@@ -106,11 +98,7 @@ const JobCard = ({ job, layout }) => {
 
         {/* Buttons centered below */}
         <div
-          className={`${
-            layout === "list"
-              ? "w-full md:w-fit flex flex-col sm:flex-row items-center justify-center gap-2"
-              : "w-full flex flex-col sm:flex-row items-center justify-center gap-2"
-          }`}
+          className={`w-full flex flex-col sm:flex-row items-center justify-center gap-2`}
         >
           {/* Apply / Applied Button */}
           <button

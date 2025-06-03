@@ -15,18 +15,20 @@ import NotFound from "@/pages/Employer/NotFound";
 import AddorEditCompany from "@/pages/Employer/Outlets/AddorEditCompany";
 import UpdateJob from "@/pages/Employer/Outlets/UpdateJob";
 import { EmployerProtectedRoute } from "@/services/employerProtector";
+import ApplicantPage from "@/components/Employer/ApplicantModal";
 import EmployerForgotPassword from "@/pages/Employer/ForgotPassword";
 import EmployerForgotPasswordOtp from "@/pages/Employer/ForgotPasswordOTP";
 import EmployerResetPassword from "@/pages/Employer/ResetPassword";
+import { EmployerLoginProtection } from "@/services/EmployerLoginProtection";
 
 function Employer() {
   return (
     <Routes>
-      <Route path="/employer-login" element={<EmployerLogin />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/employer-login" element={<EmployerLoginProtection><EmployerLogin /></EmployerLoginProtection>} />
+      <Route path="/register" element={<EmployerLoginProtection><Register /></EmployerLoginProtection>} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/otp" element={<RegisterOtp />} />
-      <Route path="/forgot-password" element={<EmployerForgotPassword />} />
+      <Route path="/forgot-password" element={<EmployerLoginProtection><EmployerForgotPassword /></EmployerLoginProtection>} />
       <Route
         path="/forgot-password-otp"
         element={<EmployerForgotPasswordOtp />}
@@ -83,6 +85,7 @@ function Employer() {
             </EmployerProtectedRoute>
           }
         />
+        <Route path="applicants/application" element={<EmployerProtectedRoute><ApplicantPage /></EmployerProtectedRoute>} />
         <Route
           path="company_details"
           element={

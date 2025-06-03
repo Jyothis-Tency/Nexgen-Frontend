@@ -25,7 +25,7 @@ const itemVariants = {
 };
 
 const RegisterOtp = () => {
-  const OTP_LENGTH = 6; // Using 6 digits for OTP
+  const OTP_LENGTH = 4; // Using 4 digits for OTP
   const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(""));
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -205,7 +205,7 @@ const RegisterOtp = () => {
             variants={itemVariants}
             className="text-gray-500 mb-6 text-center lg:text-left"
           >
-            We've sent a 6-digit code to{" "}
+            We've sent a 4-digit code to{" "}
             <span className="font-semibold">{email}</span>. Please enter it
             below to verify your account.
           </motion.p>

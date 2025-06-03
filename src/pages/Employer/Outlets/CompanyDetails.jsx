@@ -131,6 +131,7 @@ export default function CompanyDetails() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      className="overflow-hidden"
     >
       <Container maxWidth="lg" className="py-8">
         {/* Employer Section */}
@@ -212,11 +213,11 @@ export default function CompanyDetails() {
                 <Typography variant="body2" className="text-gray-400">
                   Location: {employer.location}
                 </Typography>
-                <Typography variant="body2" className="text-gray-700">
+                {/* <Typography variant="body2" className="text-gray-700">
                   {employer.isBlocked ? "❌ Blocked" : "✅ Active"}
-                </Typography>
+                </Typography> */}
                 <Typography variant="body1" className="text-gray-700 pt-2">
-                  {employer.about || "add About"}
+                  {employer.about || ""}
                 </Typography>
                 <Stack direction="row" spacing={2} className="mt-3">
                   <AnimatePresence>
