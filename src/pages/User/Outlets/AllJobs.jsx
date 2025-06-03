@@ -366,9 +366,9 @@ const AllJobsPage = () => {
 
               {/* Mobile Filter Button */}
               {isMobile && (
-                <motion.div variants={itemVariants} className="flex-shrink-0">
+                <motion.div variants={itemVariants} className="flex-shrink-0 pr-8">
                   <button
-                    className="h-full px-3 pr-8 flex items-center gap-2 rounded-lg border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 transition-colors font-medium"
+                    className="h-full px-3 flex items-center gap-2 rounded-lg border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 transition-colors font-medium"
                     onClick={() => setShowFilterModal(true)}
                   >
                     <MdFilterList className="text-lg" />
