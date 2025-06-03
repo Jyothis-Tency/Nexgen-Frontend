@@ -1,8 +1,9 @@
-"use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { CiShare2, CiBookmarkCheck } from "react-icons/ci";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
+import Navbar from "../../../components/User/Navbar";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -33,11 +34,12 @@ const JobDetails = () => {
   const location = useLocation();
   const currentUrl = `${window.location.origin}${location.pathname}`;
 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const { data } = await userAxiosInstance.get(`/job-details/${id}`, {
-          params: { userId: user?.userId || null }, // Allow null for non-logged in users
+          params: { userId: user.userId },
         });
         setJob(data.jobDetails);
         setCompany(data.employerDetails);
@@ -51,17 +53,7 @@ const JobDetails = () => {
     fetchData();
   }, [id, navigate]);
 
-  // Apply job handler with auth check
   const handleApplyJob = () => {
-    // Check if user is logged in
-    if (!user || !user.userId) {
-      // Store job ID in localStorage for redirect after login
-      localStorage.setItem("pendingJobId", id);
-      navigate("/login");
-      return;
-    }
-
-    // User is logged in, proceed to application
     navigate(`/job-application/${id}`, {
       state: {
         jobTitle: job?.name,
@@ -89,7 +81,7 @@ const JobDetails = () => {
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
     `Check out this job: ${job.name} at ${company.name}. Here's the link: ${currentUrl}`
   )}`;
-
+  
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -97,6 +89,10 @@ const JobDetails = () => {
       transition={{ duration: 0.8 }}
       className="flex flex-col min-h-screen mt-16"
     >
+      {/* <header className="flex-shrink-0">
+        <Navbar />
+      </header> */}
+
       <motion.main
         variants={containerVariants}
         initial="hidden"
@@ -163,17 +159,23 @@ const JobDetails = () => {
                 >
                   {job.applied ? "Applied" : "Apply Now"}
                 </button>
+                
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    <WhatsApp
+                      style={{
+                        color: "#25D366",
+                        fontSize: 38,
+                        cursor: "pointer",
+                      }}
+                      titleAccess="Share on WhatsApp"
+                    />
+                  </a>
+              
 
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                  <WhatsApp
-                    style={{
-                      color: "#25D366",
-                      fontSize: 38,
-                      cursor: "pointer",
-                    }}
-                    titleAccess="Share on WhatsApp"
-                  />
-                </a>
+                <div className="flex gap-4">
+                  {/* <CiBookmarkCheck className="text-2xl text-gray-700 cursor-pointer hover:text-primary transition-colors" />
+                  <CiShare2 className="text-2xl text-gray-700 cursor-pointer hover:text-primary transition-colors" /> */}
+                </div>
               </motion.div>
             </div>
           </motion.div>

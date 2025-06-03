@@ -1,42 +1,48 @@
-"use client";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { WhatsApp } from "@mui/icons-material";
+
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardFooter,
+//   CardHeader,
+//   CardTitle
+// } from "../ui/card";
+
+// import {
+//   Avatar,
+//   AvatarFallback,
+//   AvatarImage
+// } from "../ui/avatar";
+
 import { MdPlace } from "react-icons/md";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { IoBriefcase } from "react-icons/io5";
 import { calculateTimeAgo } from "@/utils/dateFormation";
-import { useSelector } from "react-redux";
 
 const JobCard = ({ job, layout }) => {
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user.seekerInfo);
 
-  // Job details can be viewed by anyone - no auth check needed
   const jobDetailNavigation = () => {
     navigate(`/job-details/${job._id}`);
   };
-
-  // Only apply action requires authentication
+  console.log("Job Card Props", job.employer);
   const handleApplyJob = (job) => {
-    // Check if user is logged in
-    if (!user || !user.userId) {
-      // Store job ID in localStorage for redirect after login
-      localStorage.setItem("pendingJobId", job._id);
-      navigate("/login");
-      return;
-    }
-
-    // User is logged in, proceed to application
     navigate(`/job-application/${job._id}`, {
       state: {
         jobTitle: job?.jobTitle,
         companyName: job?.companyName,
         phone: job?.phone,
         companyLocation: `${job?.state}, ${job?.city}`,
-        employerId: job?.employerId,
-      },
+        employerId: job?.employerId
+      }
     });
   };
+
+  console.log("Job Card Rendered", job);
+  
 
   return (
     <article
@@ -58,6 +64,7 @@ const JobCard = ({ job, layout }) => {
       {/* Job Info */}
       <div className={``}>
         <h1 className="text-lg font-semibold text-gray-800">{job?.jobTitle}</h1>
+        {/* <p className="text-sm text-gray-500">{job.companyName.toUpperCase()}</p> */}
 
         {/* Job Details */}
         <div className="space-y-1">
@@ -102,9 +109,7 @@ const JobCard = ({ job, layout }) => {
             : "bg-green-500 text-white hover:bg-white hover:border-green-500 hover:text-green-500"
         }`}
             disabled={job?.alreadyApplied}
-            aria-label={
-              job?.alreadyApplied ? "Already applied" : "Apply to job"
-            }
+            aria-label={job?.alreadyApplied ? "Already applied" : "Apply to job"}
             onClick={
               !job.alreadyApplied ? () => handleApplyJob(job) : undefined
             }
@@ -112,7 +117,7 @@ const JobCard = ({ job, layout }) => {
             {job?.alreadyApplied ? "Applied" : "Apply"}
           </button>
 
-          {/* Job Details Button - No auth required */}
+          {/* Job Details Button */}
           <button
             className="bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg 
         hover:bg-white border hover:border-blue-500 hover:text-blue-500 transition w-full sm:w-auto"
@@ -121,7 +126,6 @@ const JobCard = ({ job, layout }) => {
           >
             Details
           </button>
-
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
               `Check out this job: ${job?.jobTitle} at ${job?.employer?.name}. Here's the link: https://techpath.in/job-details/${job._id}`
@@ -130,6 +134,7 @@ const JobCard = ({ job, layout }) => {
             rel="noopener noreferrer"
             className="text-green-600 hover:text-green-700 transition-colors flex items-center gap-1"
           >
+            
             <WhatsApp
               style={{
                 color: "#25D366",
@@ -142,6 +147,25 @@ const JobCard = ({ job, layout }) => {
           </a>
         </div>
       </footer>
+
+      {/* Job Details Button and Posted Date */}
+      {/* <footer
+    className={`mt-4 ${layout === "list"
+      ? "w-full sm:w-auto flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 sm:ml-auto"
+      : "flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0"
+    }`}
+  >
+    <button
+      className="bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg 
+        hover:bg-white border hover:border-blue-500 hover:text-blue-500 transition w-full sm:w-auto"
+      aria-label="View job details"
+      onClick={jobDetailNavigation}
+    >
+      Job Details
+    </button>
+
+    <p className="text-xs sm:text-sm text-gray-500">{calculateTimeAgo(job.createdAt)}</p>
+  </footer> */}
     </article>
   );
 };
