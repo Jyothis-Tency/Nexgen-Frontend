@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import GrapeAnimation from "../components/GrapeAnimation";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
@@ -30,8 +32,6 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-console.log("env.VITE_GOOGLE_CLIENT_ID", import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
 const LoginPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +48,31 @@ const LoginPage = () => {
     } else {
       x.type = "password";
       setShowPassword(false);
+    }
+  };
+
+  // Function to handle post-login navigation
+  const handlePostLoginNavigation = () => {
+    const pendingJobId = localStorage.getItem("pendingJobId");
+    const pendingAction = localStorage.getItem("pendingAction");
+
+    if (pendingJobId) {
+      // Clear the stored values
+      localStorage.removeItem("pendingJobId");
+      localStorage.removeItem("pendingAction");
+
+      // Navigate based on the pending action
+      if (pendingAction === "apply") {
+        // For apply action, we need to get job details first, so go to job details
+        // and let the user apply from there, or directly to application page
+        navigate(`/job-application/${pendingJobId}`);
+      } else {
+        // Default to job details page
+        navigate(`/job-details/${pendingJobId}`);
+      }
+    } else {
+      // No pending job, go to home
+      navigate("/");
     }
   };
 
@@ -78,9 +103,11 @@ const LoginPage = () => {
         if (response.success) {
           toast.success("Login successful!");
         }
+
         setTimeout(() => {
-          navigate("/");
+          handlePostLoginNavigation();
         }, 1500);
+
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error: {error}</p>;
       } catch (err) {
@@ -101,7 +128,7 @@ const LoginPage = () => {
         localStorage.setItem("token", result.token);
         toast.success("Google Login successful!");
         setTimeout(() => {
-          navigate("/");
+          handlePostLoginNavigation();
         }, 1500);
       }
     } catch (err) {
@@ -279,7 +306,7 @@ const LoginPage = () => {
             variants={itemVariants}
             className="text-center text-sm text-gray-600 mt-4"
           >
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <a
               onClick={() => navigate("/sign-up")}
               className="text-blue-600 hover:underline cursor-pointer"
