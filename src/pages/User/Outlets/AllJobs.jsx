@@ -327,10 +327,10 @@ const AllJobsPage = () => {
 
           {/* Search Section */}
           <motion.div variants={itemVariants} className="w-full">
-          {/* <div className="px-4 sm:px-6 md:px-8"> */}
-            <div className="flex gap-3 mb-4 items-stretch">
+
+            <div className="mt-4 px-4 w-full max-w-xl flex items-center gap-2">
               {/* Search Bar */}
-              <div className="flex-1 pl-4">
+              {/* <div className="flex-1"> */}
                 <div className="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden shadow-sm">
                   <input
                     type="text"
@@ -346,7 +346,8 @@ const AllJobsPage = () => {
                   {/* Clear Button - Always rendered, visibility toggled */}
                   <button
                     onClick={clearSearchTerm}
-                    className={`w-6 h-6 mx-1 text-gray-500 hover:text-red-500 transition flex items-center justify-center ${searchTerm ? "visible" : "invisible"
+                    className={`w-6 h-6 mx-1 text-gray-500 hover:text-red-500 transition flex items-center
+                       justify-center ${searchTerm ? "visible" : "invisible"
                       }`}
                     title="Clear"
                   >
@@ -362,13 +363,13 @@ const AllJobsPage = () => {
                     <FaSearch />
                   </button>
                 </div>
-              </div>
+              {/* </div> */}
 
               {/* Mobile Filter Button */}
               {isMobile && (
-                <motion.div variants={itemVariants} className="flex-shrink-0 pr-8">
+                <motion.div variants={itemVariants} className="flex-shrink-0">
                   <button
-                    className="h-full px-3 flex items-center gap-2 rounded-lg border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 transition-colors font-medium"
+                    className="h-full px-2 py-2.5 flex items-center gap-2 rounded-lg border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 transition-colors font-medium"
                     onClick={() => setShowFilterModal(true)}
                   >
                     <MdFilterList className="text-lg" />
@@ -377,7 +378,7 @@ const AllJobsPage = () => {
                  </motion.div>
               )}
             </div>
-            {/* </div> */}
+            
 
 
             {/* Job Listings */}
