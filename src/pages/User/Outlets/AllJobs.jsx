@@ -340,13 +340,24 @@ const AllJobsPage = () => {
                       if (e.key === "Enter") handleSearch();
                     }}
                   />
-                  <button
+                  {searchTerm ? (
+                                 <button
+                                 onClick={clearSearchTerm}
+                                 className="bg-blue-600 text-white px-4 py-3 min-w-[50px] h-full hover:bg-blue-700 transition"
+                                 title="Search"
+                               >
+                                 <RxCross2 />
+                               </button>
+                  ) : (
+                    <button
                     onClick={handleSearch}
                     className="bg-blue-600 text-white px-4 py-3 min-w-[50px] h-full hover:bg-blue-700 transition"
                     title="Search"
                   >
                     <FaSearch />
                   </button>
+                  )}
+ 
                 </div>
               </div>
 
