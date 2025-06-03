@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import GrapeAnimation from "../components/GrapeAnimation";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
@@ -78,9 +80,21 @@ const LoginPage = () => {
         if (response.success) {
           toast.success("Login successful!");
         }
+
+        // Check if there's a stored job ID for redirect after login
+        const storedJobId = localStorage.getItem("pendingJobId");
         setTimeout(() => {
-          navigate("/");
+          if (storedJobId) {
+            // Clear the stored job ID
+            localStorage.removeItem("pendingJobId");
+            // Redirect to the job details page
+            navigate(`/job-details/${storedJobId}`);
+          } else {
+            // Default redirect to home
+            navigate("/");
+          }
         }, 1500);
+
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error: {error}</p>;
       } catch (err) {
@@ -100,8 +114,19 @@ const LoginPage = () => {
       if (result) {
         localStorage.setItem("token", result.token);
         toast.success("Google Login successful!");
+
+        // Check if there's a stored job ID for redirect after login
+        const storedJobId = localStorage.getItem("pendingJobId");
         setTimeout(() => {
-          navigate("/");
+          if (storedJobId) {
+            // Clear the stored job ID
+            localStorage.removeItem("pendingJobId");
+            // Redirect to the job details page
+            navigate(`/job-details/${storedJobId}`);
+          } else {
+            // Default redirect to home
+            navigate("/");
+          }
         }, 1500);
       }
     } catch (err) {
@@ -279,7 +304,7 @@ const LoginPage = () => {
             variants={itemVariants}
             className="text-center text-sm text-gray-600 mt-4"
           >
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <a
               onClick={() => navigate("/sign-up")}
               className="text-blue-600 hover:underline cursor-pointer"

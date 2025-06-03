@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { CiShare2, CiBookmarkCheck } from "react-icons/ci";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
-import Navbar from "../../../components/User/Navbar";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -34,26 +34,40 @@ const JobDetails = () => {
   const location = useLocation();
   const currentUrl = `${window.location.origin}${location.pathname}`;
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const { data } = await userAxiosInstance.get(`/job-details/${id}`, {
-          params: { userId: user.userId },
+          params: { userId: user?.userId },
         });
         setJob(data.jobDetails);
         setCompany(data.employerDetails);
         console.log(data);
       } catch (error) {
-        toast.warning(error.response.data.message || "An error occurred");
+        toast.warning(error.response?.data?.message || "An error occurred");
         navigate("/home");
       }
     };
 
     fetchData();
-  }, [id, navigate]);
+  }, [id, navigate, user]);
+
+  // Check if user is logged in
+  const isUserLoggedIn = () => {
+    const token = localStorage.getItem("token");
+    return !!token && !!user?.userId; // Returns true if token exists and user is loaded
+  };
 
   const handleApplyJob = () => {
+    if (!isUserLoggedIn()) {
+      // User is not logged in, store job ID and redirect to login
+      localStorage.setItem("pendingJobId", id);
+      toast.info("Please login to apply for this job");
+      navigate("/login");
+      return;
+    }
+
+    // User is logged in, proceed with job application
     navigate(`/job-application/${id}`, {
       state: {
         jobTitle: job?.name,
@@ -81,7 +95,7 @@ const JobDetails = () => {
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
     `Check out this job: ${job.name} at ${company.name}. Here's the link: ${currentUrl}`
   )}`;
-  
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -159,18 +173,17 @@ const JobDetails = () => {
                 >
                   {job.applied ? "Applied" : "Apply Now"}
                 </button>
-                
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                    <WhatsApp
-                      style={{
-                        color: "#25D366",
-                        fontSize: 38,
-                        cursor: "pointer",
-                      }}
-                      titleAccess="Share on WhatsApp"
-                    />
-                  </a>
-              
+
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                  <WhatsApp
+                    style={{
+                      color: "#25D366",
+                      fontSize: 38,
+                      cursor: "pointer",
+                    }}
+                    titleAccess="Share on WhatsApp"
+                  />
+                </a>
 
                 <div className="flex gap-4">
                   {/* <CiBookmarkCheck className="text-2xl text-gray-700 cursor-pointer hover:text-primary transition-colors" />
