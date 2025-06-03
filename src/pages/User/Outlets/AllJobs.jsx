@@ -333,7 +333,7 @@ const AllJobsPage = () => {
     <div className="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden shadow-sm">
       <input
         type="text"
-        className="flex-1 px-3 py-2 focus:outline-none text-sm min-w-0"
+        className="flex-1 px-2 py-2 focus:outline-none text-sm min-w-0"
         placeholder="Search job title"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -356,7 +356,7 @@ const AllJobsPage = () => {
       {/* Search Button */}
       <button
         onClick={handleSearch}
-        className="flex-shrink-0 bg-blue-600 text-white px-4 py-2.5 hover:bg-blue-700 transition"
+        className="flex-shrink-0 bg-blue-600 text-white px-4 py-3.5 hover:bg-blue-700 transition"
         title="Search"
       >
         <FaSearch />
