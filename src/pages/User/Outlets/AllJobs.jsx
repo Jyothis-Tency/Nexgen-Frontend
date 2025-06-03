@@ -327,7 +327,7 @@ const AllJobsPage = () => {
 
           {/* Search Section */}
           <motion.div variants={itemVariants} className="w-full">
-            <div className="flex flex-row gap-3">
+            <div className="flex flex-row gap-3 mx-4">
               <div className="w-3/4 relative mb-6" ref={searchBoxRef}>
                 <div
                   className="flex justify-between items-center rounded-md p-3 bg-white cursor-pointer"
