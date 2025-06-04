@@ -43,6 +43,7 @@ function User() {
             </UserProtectedRoute>
           }
         />
+        
         {/* User Protected Routes */}
         <Route path="/all-jobs" element={<AllJobsPage />} />
         <Route path="/job-details/:id" element={<JobDetailPage />} />
