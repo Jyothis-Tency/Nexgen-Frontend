@@ -2,7 +2,7 @@ import axios from "axios";
 const env = import.meta.env;
 
 const AdminAxiosInstance = axios.create({
-  baseURL: "http://localhost:5001/admin",
+  baseURL: "https://api.techpath.in/admin",
   withCredentials: true,
 });
 
