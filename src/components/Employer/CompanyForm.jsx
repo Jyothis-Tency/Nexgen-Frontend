@@ -183,7 +183,6 @@ const CompanyForm = ({ company = null }) => {
           fullWidth
           label="Company Website"
           name="webSite"
-          type="url"
           {...formik.getFieldProps("webSite")}
           error={formik.touched.webSite && Boolean(formik.errors.webSite)}
           helperText={formik.touched.webSite && formik.errors.webSite}

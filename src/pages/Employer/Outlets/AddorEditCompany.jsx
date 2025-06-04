@@ -30,10 +30,10 @@ const AddorEditCompany = () => {
       initial="hidden"
       animate="visible"
     >
-      <main className="container mx-auto px-8 py-8">
+      <main className="container mx-auto px-1 md:px-8 py-2 md:py-8">
         <div className="mx-auto max-w-2xl space-y-8">
           <motion.div variants={itemVariants}>
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl font-bold ml-2">
               {company ? "Edit Company" : "Add Company"}
             </h1>
           </motion.div>
