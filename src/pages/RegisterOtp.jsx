@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { userOtpVerificationAction } from "@/redux/actions/userAction";
 import GrapeAnimation from "@/components/GrapeAnimation";
 import { motion } from "framer-motion";
+import OtpTimer from "@/components/otp-timer";
 
 // Animation variants
 const containerVariants = {
@@ -29,6 +30,7 @@ const RegisterOtp = () => {
   const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(""));
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [isTimerExpired, setIsTimerExpired] = useState(false);
   const inputRefs = useRef([]);
   const location = useLocation();
   const navigate = useNavigate();
@@ -57,12 +59,12 @@ const RegisterOtp = () => {
     console.log("Using email:", email);
 
     // Redirect if no email found
-    // if (!email) {
-    //   console.error("No email found in state or localStorage");
-    //   toast.error("Session expired. Please register again.");
-    //   navigate("/sign-up");
-    //   return;
-    // }
+    if (!email) {
+      console.error("No email found in state or localStorage");
+      toast.error("Session expired. Please register again.");
+      navigate("/sign-up");
+      return;
+    }
 
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
@@ -111,9 +113,10 @@ const RegisterOtp = () => {
       console.log("OTP verification result:", result);
 
       if (result.success) {
-        // Clean up localStorage
+        // Clean up localStorage including timer
         localStorage.removeItem("user-email");
         localStorage.removeItem("email");
+        localStorage.removeItem("signup_otp_timer");
 
         toast.success("OTP verification successful!");
 
@@ -150,6 +153,15 @@ const RegisterOtp = () => {
 
       if (data.status) {
         toast.success("OTP resent successfully!");
+
+        // Reset the timer using the global method
+        const resetTimerMethod = window.resetTimer_signup_otp_timer;
+        if (resetTimerMethod) {
+          resetTimerMethod();
+        }
+
+        setIsTimerExpired(false);
+
         // Clear current OTP
         setOtp(new Array(OTP_LENGTH).fill(""));
         if (inputRefs.current[0]) {
@@ -162,6 +174,11 @@ const RegisterOtp = () => {
     } finally {
       setIsResending(false);
     }
+  };
+
+  const handleOtpExpire = () => {
+    setIsTimerExpired(true);
+    toast.warning("OTP has expired. Please request a new one.");
   };
 
   if (!email) {
@@ -209,6 +226,16 @@ const RegisterOtp = () => {
             <span className="font-semibold">{email}</span>. Please enter it
             below to verify your account.
           </motion.p>
+
+          {/* OTP Timer */}
+          <motion.div variants={itemVariants} className="mb-4">
+            <OtpTimer
+              initialSeconds={100}
+              onExpire={handleOtpExpire}
+              className="mb-4"
+              storageKey="signup_otp_timer"
+            />
+          </motion.div>
 
           <motion.form
             variants={containerVariants}
@@ -259,15 +286,21 @@ const RegisterOtp = () => {
             className="text-center mt-4 flex justify-center gap-3"
           >
             <p className="text-gray-600">Didn't receive the code?</p>
-            <button
-              className={`text-blue-600 hover:text-blue-700 text-sm hover:underline ${
-                isResending ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              onClick={resendOtp}
-              disabled={isResending || isSubmitting}
-            >
-              {isResending ? "Resending..." : "Resend Code"}
-            </button>
+            {isTimerExpired ? (
+              <button
+                className={`text-blue-600 hover:text-blue-700 text-sm hover:underline ${
+                  isResending ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                onClick={resendOtp}
+                disabled={isResending || isSubmitting}
+              >
+                {isResending ? "Resending..." : "Resend Code"}
+              </button>
+            ) : (
+              <span className="text-gray-400 text-sm">
+                Wait for timer to expire
+              </span>
+            )}
           </motion.div>
 
           <motion.p
