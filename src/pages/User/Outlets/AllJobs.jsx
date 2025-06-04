@@ -328,9 +328,9 @@ const AllJobsPage = () => {
           {/* Search Section */}
           <motion.div variants={itemVariants} className="w-full">
 
-            <div className="sticky top-[64px] z-40 -mt-4 mb-5 px-4 w-full max-w-xl flex items-center gap-3">
+            <div className="sticky top-[64px] z-40 px-4 w-full max-w-full md:max-w-4xl mx-auto flex items-center gap-3 -mt-2 mb-5 md:mt-2">
               {/* Search Bar */}
-                <div className="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden shadow-sm">
+                <div className="flex items-center border border-gray-300 rounded-lg bg-white overflow-hidden shadow-sm flex-1">
                   <input
                     type="text"
                     className="flex-1 px-2 py-2 focus:outline-none text-sm min-w-0"
