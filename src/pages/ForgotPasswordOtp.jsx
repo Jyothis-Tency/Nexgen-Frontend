@@ -6,7 +6,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
 import { motion } from "framer-motion";
-import OtpTimer from "@/components/otp-timer";
 
 // Animation variants
 const containerVariants = {
@@ -29,7 +28,6 @@ const ForgotPasswordOtp = () => {
   const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(""));
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [isTimerExpired, setIsTimerExpired] = useState(false);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
 
@@ -93,9 +91,6 @@ const ForgotPasswordOtp = () => {
       );
 
       if (data.status) {
-        // Clean up timer on successful verification
-        localStorage.removeItem("forgot_password_otp_timer");
-
         toast.success("OTP verified successfully!");
         setTimeout(() => {
           navigate("/reset-password");
@@ -125,15 +120,6 @@ const ForgotPasswordOtp = () => {
 
       if (data.status) {
         toast.success("OTP resent successfully!");
-
-        // Reset the timer using the global method
-        const resetTimerMethod = window.resetTimer_forgot_password_otp_timer;
-        if (resetTimerMethod) {
-          resetTimerMethod();
-        }
-
-        setIsTimerExpired(false);
-
         // Clear current OTP
         setOtp(new Array(OTP_LENGTH).fill(""));
         if (inputRefs.current[0]) {
@@ -146,11 +132,6 @@ const ForgotPasswordOtp = () => {
     } finally {
       setIsResending(false);
     }
-  };
-
-  const handleOtpExpire = () => {
-    setIsTimerExpired(true);
-    toast.warning("OTP has expired. Please request a new one.");
   };
 
   if (!email || !token) {
@@ -210,16 +191,6 @@ const ForgotPasswordOtp = () => {
             below to verify your identity.
           </motion.p>
 
-          {/* OTP Timer */}
-          <motion.div variants={itemVariants} className="mb-4">
-            <OtpTimer
-              initialSeconds={300}
-              onExpire={handleOtpExpire}
-              className="mb-4"
-              storageKey="forgot_password_otp_timer"
-            />
-          </motion.div>
-
           <motion.form
             variants={containerVariants}
             initial="hidden"
@@ -268,21 +239,15 @@ const ForgotPasswordOtp = () => {
             className="text-center mt-4 flex justify-center gap-3"
           >
             <p className="text-gray-600">Didn't receive the code?</p>
-            {isTimerExpired ? (
-              <button
-                className={`text-blue-600 hover:text-blue-700 text-sm hover:underline ${
-                  isResending ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                onClick={resendOtp}
-                disabled={isResending}
-              >
-                {isResending ? "Resending..." : "Resend Code"}
-              </button>
-            ) : (
-              <span className="text-gray-400 text-sm">
-                Wait for timer to expire
-              </span>
-            )}
+            <button
+              className={`text-blue-600 hover:text-blue-700 text-sm hover:underline ${
+                isResending ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onClick={resendOtp}
+              disabled={isResending}
+            >
+              {isResending ? "Resending..." : "Resend Code"}
+            </button>
           </motion.div>
 
           <motion.p
