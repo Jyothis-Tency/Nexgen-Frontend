@@ -203,7 +203,7 @@ import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
 import { toast } from "sonner";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:5001", { autoConnect: false });
+const socket = io("https://api.techpath.in", { autoConnect: false });
 
 const Navbar = () => {
   const user = useSelector((state) => state.user.seekerInfo);

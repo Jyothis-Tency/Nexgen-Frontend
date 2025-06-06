@@ -226,15 +226,17 @@ export default function Home() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="container mx-auto max-w-screen-xl mt-6 sm:mt-8"
+            className="container mx-auto py-8"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-5">
-              {jobs?.map((job, index) => (
-                <motion.div key={index} variants={itemVariants}>
-                  <JobCard job={job} />
-                </motion.div>
-              ))}
-            </div>
+           <section className="mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-4 sm:px-5">
+          {jobs?.map((job, index) => (
+            <motion.div key={index} variants={itemVariants} className="flex justify-center">
+              <JobCard job={job} />
+            </motion.div>
+          ))}
+        </div>
+      </section>
           </motion.div>
 
           <div className="mt-8 text-center">
