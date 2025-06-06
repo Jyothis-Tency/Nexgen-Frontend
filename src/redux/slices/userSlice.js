@@ -3,7 +3,7 @@ import {
   userLoginAction,
   userOtpVerificationAction,
   userGoogleLoginAction,
-} from "../actions/userAction";
+} from "@/redux/actions/userAction";
 
 const initialState = {
   seekerInfo: {},
@@ -19,9 +19,16 @@ const userSlice = createSlice({
       state.seekerInfo = {};
       state.error = null;
       state.loading = false;
+      // Clear localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("user-email");
+      localStorage.removeItem("email");
     },
     clearError: (state) => {
       state.error = null;
+    },
+    setUser: (state, action) => {
+      state.seekerInfo = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -33,8 +40,8 @@ const userSlice = createSlice({
       })
       .addCase(userLoginAction.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload) {
-          state.seekerInfo = action.payload?.userData || {};
+        if (action.payload && action.payload.userData) {
+          state.seekerInfo = action.payload.userData;
         }
       })
       .addCase(userLoginAction.rejected, (state, action) => {
@@ -49,8 +56,8 @@ const userSlice = createSlice({
       })
       .addCase(userOtpVerificationAction.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload) {
-          state.seekerInfo = action.payload?.userData || {};
+        if (action.payload && action.payload.userData) {
+          state.seekerInfo = action.payload.userData;
         }
       })
       .addCase(userOtpVerificationAction.rejected, (state, action) => {
@@ -65,8 +72,8 @@ const userSlice = createSlice({
       })
       .addCase(userGoogleLoginAction.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload) {
-          state.seekerInfo = action.payload?.userData || {};
+        if (action.payload && action.payload.userData) {
+          state.seekerInfo = action.payload.userData;
         }
       })
       .addCase(userGoogleLoginAction.rejected, (state, action) => {
@@ -76,6 +83,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = userSlice.actions;
+export const { logout, clearError, setUser } = userSlice.actions;
 
 export default userSlice.reducer;
