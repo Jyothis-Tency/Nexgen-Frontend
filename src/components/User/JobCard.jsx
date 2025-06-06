@@ -56,7 +56,6 @@ const JobCard = ({ job, layout }) => {
     const jobLink = `https://techpath.in/job-details/${job._id}`;
 
     return `📢 MOBILE TRAINING & PLACEMENT VACANCY
-🆔 Job ID: ${jobId}
 
 🏢 Company: ${companyName}
 📍 Location: ${location}

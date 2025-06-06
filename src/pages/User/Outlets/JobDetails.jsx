@@ -90,7 +90,6 @@ const JobDetails = () => {
     const jobLink = currentUrl;
 
     return `📢 MOBILE TRAINING & PLACEMENT VACANCY
-🆔 Job ID: ${jobId}
 
 🏢 Company: ${companyName}
 📍 Location: ${location}
