@@ -97,9 +97,7 @@ export default function Home() {
     } catch (error) {
       console.log(error);
     } finally {
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000)
+      setLoading(false);
     }
   };
 
