@@ -1,17 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import GrapeAnimation from "../components/GrapeAnimation";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
-import useRequestUser from "../hooks/useRequestUser";
-import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useDispatch } from "react-redux";
 import { userGoogleLoginAction } from "@/redux/actions/userAction";
+import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance"
+import GrapeAnimation from "@/components/GrapeAnimation"
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,27 +21,12 @@ const SignupPage = () => {
 
   const GOOGLE_CLIENT_ID =
     "356987224140-nruiian6hrfgt5sk7bf0hi7o47lm210f.apps.googleusercontent.com";
-  const { data, loading, error, sendRequest } = useRequestUser();
 
-  const showPasswordFunction = () => {
-    var x = document.getElementById("password");
-    if (x.type === "password") {
-      x.type = "text";
-      setShowPassword(true);
-    } else {
-      x.type = "password";
-      setShowPassword(false);
-    }
-  };
-
-  const showConfirmPasswordFunction = () => {
-    var x = document.getElementById("confirm-password");
-    if (x.type === "password") {
-      x.type = "text";
-      setShowConfirmPassword(true);
-    } else {
-      x.type = "password";
-      setShowConfirmPassword(false);
+  const togglePasswordVisibility = (field) => {
+    if (field === "password") {
+      setShowPassword(!showPassword);
+    } else if (field === "confirmPassword") {
+      setShowConfirmPassword(!showConfirmPassword);
     }
   };
 
@@ -53,23 +37,24 @@ const SignupPage = () => {
       phone: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
     validationSchema: Yup.object({
       firstName: Yup.string()
         .trim()
-        .min(1, "First name must be at least 1 characters")
+        .min(1, "First name must be at least 1 character")
         .max(50, "First name must not exceed 50 characters")
         .required("First name is required"),
 
       lastName: Yup.string()
         .trim()
-        .min(1, "Last name must be at least 1 characters")
+        .min(1, "Last name must be at least 1 character")
         .max(50, "Last name must not exceed 50 characters")
         .required("Last name is required"),
 
       phone: Yup.string()
         .min(10, "Phone number must be at least 10 characters")
-        .matches(/^\+?[1-9]\d{1,14}$/, "Phone number is not valid") // Matches E.164 phone number format
+        .matches(/^\+?[1-9]\d{1,14}$/, "Phone number is not valid")
         .required("Phone number is required"),
 
       email: Yup.string()
@@ -106,9 +91,7 @@ const SignupPage = () => {
         console.log("=== SIGNUP RESPONSE ===");
         console.log("Response data:", data);
 
-        // Check for successful response - backend returns { status: true/false, message: "..." }
         if (data && (data.status === true || data.status === "true")) {
-          // Store email with the correct key that OTP verification expects
           localStorage.setItem("user-email", values.email);
           console.log(
             "Email stored in localStorage as 'user-email':",
@@ -125,7 +108,6 @@ const SignupPage = () => {
             });
           }, 1500);
         } else {
-          // Handle case where status is false but no error was thrown
           throw new Error(
             data?.message || "Registration failed. Please try again."
           );
@@ -152,7 +134,7 @@ const SignupPage = () => {
         userGoogleLoginAction({ id_token: credential })
       ).unwrap();
       if (result) {
-        localStorage.setItem("token", result.token);
+        localStorage.setItem("token", result.userData.token);
         toast.success("Google Login successful!");
         setTimeout(() => {
           navigate("/");
@@ -165,16 +147,14 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-ful">
+    <div className="flex flex-col lg:flex-row h-full">
       {/* Left Section */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary flex-col justify-center items-center text-center text-white p-6 lg:p-10">
         <div className="max-w-md">
           <GrapeAnimation className="sm:hidden" />
-
           <h2 className="text-2xl lg:text-3xl font-semibold mb-4">
             Find Jobs Tailored for Mobile Technicians
           </h2>
-
           <p className="text-base lg:text-lg text-gray-200 mb-4">
             Discover the best opportunities and connect with employers who value
             your skills.
@@ -224,17 +204,17 @@ const SignupPage = () => {
 
           {/* Email and Password Form */}
           <form onSubmit={formik.handleSubmit}>
-            <div className="md:flex gap-5  ">
-              <div className="mb-3 md:w-1/2 ">
+            <div className="md:flex gap-5">
+              <div className="mb-3 md:w-1/2">
                 <label
-                  htmlFor="first_name"
+                  htmlFor="firstName"
                   className="block text-sm font-medium text-gray-700"
                 >
                   First name
                 </label>
                 <input
                   type="text"
-                  id="first-name"
+                  id="firstName"
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
                   placeholder="Enter your first name"
                   aria-required="true"
@@ -252,14 +232,14 @@ const SignupPage = () => {
 
               <div className="mb-3 md:w-1/2">
                 <label
-                  htmlFor="first_name"
+                  htmlFor="lastName"
                   className="block text-sm font-medium text-gray-700"
                 >
                   Last name
                 </label>
                 <input
                   type="text"
-                  id="last-name"
+                  id="lastName"
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
                   placeholder="Enter your last name"
                   aria-required="true"
@@ -278,14 +258,14 @@ const SignupPage = () => {
 
             <div className="mb-3">
               <label
-                htmlFor="phone-number"
+                htmlFor="phone"
                 className="block text-sm font-medium text-gray-700"
               >
                 Phone Number
               </label>
               <input
-                type="phone-number"
-                id="phone-number"
+                type="tel"
+                id="phone"
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
                 placeholder="Enter your phone number"
                 aria-required="true"
@@ -335,9 +315,9 @@ const SignupPage = () => {
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   id="password"
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
+                  className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
                   placeholder="Enter your password"
                   aria-required="true"
                   value={formik.values.password}
@@ -345,37 +325,34 @@ const SignupPage = () => {
                   onBlur={formik.handleBlur}
                   name="password"
                 />
-                {formik.touched.password && formik.errors.password ? (
-                  <div className="text-red-500 text-[13px]">
-                    {formik.errors.password}
-                  </div>
-                ) : null}
                 <button
                   type="button"
                   className="absolute inset-y-0 right-4 flex items-center text-gray-500"
+                  onClick={() => togglePasswordVisibility("password")}
                   aria-label="Toggle password visibility"
                 >
-                  {showPassword ? (
-                    <PiEyeBold onClick={showPasswordFunction} />
-                  ) : (
-                    <PiEyeSlashBold onClick={showPasswordFunction} />
-                  )}
+                  {showPassword ? <PiEyeBold /> : <PiEyeSlashBold />}
                 </button>
               </div>
+              {formik.touched.password && formik.errors.password ? (
+                <div className="text-red-500 text-[13px]">
+                  {formik.errors.password}
+                </div>
+              ) : null}
             </div>
 
             <div className="mb-3">
               <label
-                htmlFor="confirm-password"
+                htmlFor="confirmPassword"
                 className="block text-sm font-medium text-gray-700"
               >
                 Confirm Password
               </label>
               <div className="relative">
                 <input
-                  type="password"
-                  id="confirm-password"
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
                   placeholder="Re-enter your password"
                   aria-required="true"
                   value={formik.values.confirmPassword}
@@ -383,27 +360,24 @@ const SignupPage = () => {
                   onBlur={formik.handleBlur}
                   name="confirmPassword"
                 />
-                {formik.touched.confirmPassword &&
-                formik.errors.confirmPassword ? (
-                  <div className="text-red-500 text-[13px]">
-                    {formik.errors.confirmPassword}
-                  </div>
-                ) : null}
                 <button
                   type="button"
                   className="absolute inset-y-0 right-4 flex items-center text-gray-500"
-                  aria-label="Toggle password visibility"
+                  onClick={() => togglePasswordVisibility("confirmPassword")}
+                  aria-label="Toggle confirm password visibility"
                 >
-                  {showConfirmPassword ? (
-                    <PiEyeBold onClick={showConfirmPasswordFunction} />
-                  ) : (
-                    <PiEyeSlashBold onClick={showConfirmPasswordFunction} />
-                  )}
+                  {showConfirmPassword ? <PiEyeBold /> : <PiEyeSlashBold />}
                 </button>
               </div>
+              {formik.touched.confirmPassword &&
+              formik.errors.confirmPassword ? (
+                <div className="text-red-500 text-[13px]">
+                  {formik.errors.confirmPassword}
+                </div>
+              ) : null}
             </div>
 
-            {/* Login Button */}
+            {/* Sign Up Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -415,15 +389,15 @@ const SignupPage = () => {
             </button>
           </form>
 
-          {/* Create Account */}
+          {/* Login Link */}
           <p className="text-center text-sm text-gray-600 mt-4">
             Already have an account?{" "}
-            <a
+            <button
               onClick={() => navigate("/login")}
               className="text-blue-600 hover:underline cursor-pointer"
             >
               Log in
-            </a>
+            </button>
           </p>
         </div>
       </div>

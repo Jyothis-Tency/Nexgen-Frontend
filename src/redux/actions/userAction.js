@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance";
+import userAxiosInstance from "@/config/axiosConfig/userAxiosInstance"
 
 export const userLoginAction = createAsyncThunk(
   "user/login",
@@ -9,22 +9,28 @@ export const userLoginAction = createAsyncThunk(
         email,
         password,
       });
+
       console.log("Response after login: ", response);
-      if (response.status === 200) {
+
+      if (response.status === 200 && response.data.cred) {
         return {
           success: true,
           message: "User login successfully",
           userData: response.data.cred,
         };
+      } else {
+        throw new Error(response.data.message || "Login failed");
       }
     } catch (error) {
       console.error("Error in userLoginAction thunk: ", error);
-      throw new Error(error.response?.data?.message || "Login failed");
+      const errorMessage =
+        error.response?.data?.message || error.message || "Login failed";
+      throw new Error(errorMessage);
     }
   }
 );
 
-// New action for OTP verification
+// OTP verification action
 export const userOtpVerificationAction = createAsyncThunk(
   "user/otpVerification",
   async ({ email, otp }, { rejectWithValue }) => {
@@ -50,31 +56,40 @@ export const userOtpVerificationAction = createAsyncThunk(
       }
     } catch (error) {
       console.error("Error in userOtpVerificationAction thunk:", error);
-      throw new Error(
-        error.response?.data?.message || "OTP verification failed"
-      );
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "OTP verification failed";
+      throw new Error(errorMessage);
     }
   }
 );
 
 export const userGoogleLoginAction = createAsyncThunk(
   "user/googleLogin",
-  async (id_token, { rejectWithValue }) => {
+  async (tokenData, { rejectWithValue }) => {
     try {
-      const response = await userAxiosInstance.post("/google-login", {
-        credential: id_token,
-      });
+      console.log("Google login token data:", tokenData);
+
+      const response = await userAxiosInstance.post("/google-login", tokenData);
+
       console.log("Response after google login: ", response);
       console.log("Response after google login cred: ", response.data.cred);
-      if (response.status === 200) {
+
+      if (response.status === 200 && response.data.cred) {
         return {
+          success: true,
           message: "Google Auth successfully",
           userData: response.data.cred,
         };
+      } else {
+        throw new Error(response.data.message || "Google login failed");
       }
     } catch (error) {
       console.error("Error in userGoogleLoginAction thunk: ", error);
-      throw new Error(error.response?.data?.message || "Login failed");
+      const errorMessage =
+        error.response?.data?.message || error.message || "Google login failed";
+      throw new Error(errorMessage);
     }
   }
 );

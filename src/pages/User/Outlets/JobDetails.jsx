@@ -79,6 +79,34 @@ const JobDetails = () => {
     });
   };
 
+  // Generate WhatsApp message with the new format
+  const generateWhatsAppMessage = () => {
+    if (!job || !company) return "";
+
+    const jobId = id?.slice(-6) || "123456";
+    const companyName = company?.name || "Company Name";
+    const location = `${job?.city}, ${job?.state}`;
+    const jobTitle = job?.name || "Mobile Technician";
+    const jobLink = currentUrl;
+
+    return `📢 MOBILE TRAINING & PLACEMENT VACANCY
+
+🏢 Company: ${companyName}
+📍 Location: ${location}
+
+🔧 Job Role: ${jobTitle}
+
+🌐 Explore More Opportunities:
+Visit: www.techpath.in
+
+📝 For More Details:
+${jobLink}
+
+🎓 Want to build a career in Mobile/Laptop Repair?
+Join Techpath Courses
+🖥 Online & 🏫 Offline Options Available`;
+  };
+
   if (!job || !company) {
     return (
       <motion.div
@@ -93,7 +121,7 @@ const JobDetails = () => {
   }
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-    `Check out this job: ${job.name} at ${company.name}. Here's the link: ${currentUrl}`
+    generateWhatsAppMessage()
   )}`;
 
   return (
@@ -103,10 +131,6 @@ const JobDetails = () => {
       transition={{ duration: 0.8 }}
       className="flex flex-col min-h-screen mt-16"
     >
-      {/* <header className="flex-shrink-0">
-        <Navbar />
-      </header> */}
-
       <motion.main
         variants={containerVariants}
         initial="hidden"
@@ -184,11 +208,6 @@ const JobDetails = () => {
                     titleAccess="Share on WhatsApp"
                   />
                 </a>
-
-                <div className="flex gap-4">
-                  {/* <CiBookmarkCheck className="text-2xl text-gray-700 cursor-pointer hover:text-primary transition-colors" />
-                  <CiShare2 className="text-2xl text-gray-700 cursor-pointer hover:text-primary transition-colors" /> */}
-                </div>
               </motion.div>
             </div>
           </motion.div>

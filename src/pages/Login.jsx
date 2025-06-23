@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import GrapeAnimation from "../components/GrapeAnimation";
 import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { useNavigate, Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
-import useRequest from "../hooks/useRequestUser";
 import { useDispatch } from "react-redux";
 import {
   userGoogleLoginAction,
@@ -15,6 +13,7 @@ import {
 } from "@/redux/actions/userAction";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { motion } from "framer-motion";
+import GrapeAnimation from "@/components/GrapeAnimation"
 
 // Animation variants for staggered children
 const containerVariants = {
@@ -32,25 +31,16 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-console.log("env.VITE_GOOGLE_CLIENT_ID", import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
 const LoginPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const { data, loading, error, sendRequest } = useRequest();
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const GOOGLE_CLIENT_ID =
     "356987224140-nruiian6hrfgt5sk7bf0hi7o47lm210f.apps.googleusercontent.com";
 
-  const showPasswordFunction = () => {
-    var x = document.getElementById("password");
-    if (x.type === "password") {
-      x.type = "text";
-      setShowPassword(true);
-    } else {
-      x.type = "password";
-      setShowPassword(false);
-    }
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const formik = useFormik({
@@ -70,36 +60,32 @@ const LoginPage = () => {
     }),
     onSubmit: async (values) => {
       try {
-        console.log("values:", values);
+        setIsLoading(true);
+        console.log("Login values:", values);
+
         const response = await dispatch(userLoginAction(values)).unwrap();
-        console.log(
-          "Response after loging in user login component: ",
-          response
-        );
-        localStorage.setItem("token", response.userData.token);
-        if (response.success) {
+        console.log("Response after logging in:", response);
+
+        if (response.success && response.userData) {
+          localStorage.setItem("token", response.userData.token);
           toast.success("Login successful!");
+
+          // Check if there's a stored job ID for redirect after login
+          const storedJobId = localStorage.getItem("pendingJobId");
+          setTimeout(() => {
+            if (storedJobId) {
+              localStorage.removeItem("pendingJobId");
+              navigate(`/job-details/${storedJobId}`);
+            } else {
+              navigate("/");
+            }
+          }, 1500);
         }
-
-        // Check if there's a stored job ID for redirect after login
-        const storedJobId = localStorage.getItem("pendingJobId");
-        setTimeout(() => {
-          if (storedJobId) {
-            // Clear the stored job ID
-            localStorage.removeItem("pendingJobId");
-            // Redirect to the job details page
-            navigate(`/job-details/${storedJobId}`);
-          } else {
-            // Default redirect to home
-            navigate("/");
-          }
-        }, 1500);
-
-        if (loading) return <p>Loading...</p>;
-        if (error) return <p>Error: {error}</p>;
       } catch (err) {
-        console.log("Error in user login component after login: ", err);
-        toast.error(err?.message || "An error occurred");
+        console.error("Error in user login:", err);
+        toast.error(err?.message || "Login failed. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
     },
   });
@@ -111,27 +97,25 @@ const LoginPage = () => {
       const result = await dispatch(
         userGoogleLoginAction({ id_token: credential })
       ).unwrap();
-      if (result) {
-        localStorage.setItem("token", result.token);
+
+      if (result && result.userData) {
+        localStorage.setItem("token", result.userData.token);
         toast.success("Google Login successful!");
 
         // Check if there's a stored job ID for redirect after login
         const storedJobId = localStorage.getItem("pendingJobId");
         setTimeout(() => {
           if (storedJobId) {
-            // Clear the stored job ID
             localStorage.removeItem("pendingJobId");
-            // Redirect to the job details page
             navigate(`/job-details/${storedJobId}`);
           } else {
-            // Default redirect to home
             navigate("/");
           }
         }, 1500);
       }
     } catch (err) {
       console.error("Error in Google login: ", err);
-      toast.error(err?.message || "An error occurred");
+      toast.error(err?.message || "Google login failed. Please try again.");
     }
   };
 
@@ -184,7 +168,7 @@ const LoginPage = () => {
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={() => {
-                    toast.error("Google sign up failed");
+                    toast.error("Google login failed");
                   }}
                 />
               </GoogleOAuthProvider>
@@ -216,7 +200,7 @@ const LoginPage = () => {
               <input
                 type="email"
                 id="email"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
                 placeholder="Enter your email"
                 aria-required="true"
                 value={formik.values.email}
@@ -230,6 +214,7 @@ const LoginPage = () => {
                 </div>
               ) : null}
             </motion.div>
+
             <motion.div variants={itemVariants} className="mb-4">
               <label
                 htmlFor="password"
@@ -239,9 +224,9 @@ const LoginPage = () => {
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   id="password"
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm outline-none"
                   placeholder="Enter your password"
                   aria-required="true"
                   value={formik.values.password}
@@ -249,23 +234,20 @@ const LoginPage = () => {
                   onBlur={formik.handleBlur}
                   name="password"
                 />
-                {formik.touched.password && formik.errors.password ? (
-                  <div className="text-red-500 text-sm">
-                    {formik.errors.password}
-                  </div>
-                ) : null}
                 <button
                   type="button"
                   className="absolute inset-y-0 right-4 flex items-center text-gray-500"
+                  onClick={togglePasswordVisibility}
                   aria-label="Toggle password visibility"
                 >
-                  {showPassword ? (
-                    <PiEyeBold onClick={showPasswordFunction} />
-                  ) : (
-                    <PiEyeSlashBold onClick={showPasswordFunction} />
-                  )}
+                  {showPassword ? <PiEyeBold /> : <PiEyeSlashBold />}
                 </button>
               </div>
+              {formik.touched.password && formik.errors.password ? (
+                <div className="text-red-500 text-sm">
+                  {formik.errors.password}
+                </div>
+              ) : null}
             </motion.div>
 
             {/* Remember Me */}
@@ -280,22 +262,26 @@ const LoginPage = () => {
                 />
                 <span className="ml-2 text-sm text-gray-700">Remember me</span>
               </label>
-              <p
+              <button
+                type="button"
                 onClick={() => navigate("/forgot-password")}
                 className="text-sm text-blue-600 hover:underline cursor-pointer"
                 aria-label="Forgot Password"
               >
                 Forgot Password?
-              </p>
+              </button>
             </motion.div>
 
             {/* Login Button */}
             <motion.button
               variants={itemVariants}
               type="submit"
-              className="w-full py-2 px-4 bg-primary text-white rounded-md text-sm font-medium hover:bg-blue-700"
+              disabled={isLoading}
+              className={`w-full py-2 px-4 bg-primary text-white rounded-md text-sm font-medium hover:bg-blue-700 ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Log in
+              {isLoading ? "Logging in..." : "Log in"}
             </motion.button>
           </motion.form>
 
@@ -305,12 +291,12 @@ const LoginPage = () => {
             className="text-center text-sm text-gray-600 mt-4"
           >
             Don't have an account?{" "}
-            <a
+            <button
               onClick={() => navigate("/sign-up")}
               className="text-blue-600 hover:underline cursor-pointer"
             >
               Create a user account
-            </a>
+            </button>
           </motion.p>
 
           <motion.p
@@ -324,12 +310,12 @@ const LoginPage = () => {
             className="text-center text-sm text-gray-600 mt-4"
           >
             Are you a Recruiter?{" "}
-            <a
+            <button
               onClick={() => navigate("/employer/employer-login")}
               className="text-blue-600 hover:underline cursor-pointer"
             >
               Login to hire candidates
-            </a>
+            </button>
           </motion.p>
         </div>
       </motion.div>
@@ -343,14 +329,12 @@ const LoginPage = () => {
       >
         <div className="max-w-md">
           <GrapeAnimation className="sm:hidden" />
-
           <motion.h2
             variants={itemVariants}
             className="text-2xl lg:text-3xl font-semibold mb-4"
           >
             Find Jobs for Mobile Technicians
           </motion.h2>
-
           <motion.p
             variants={itemVariants}
             className="text-base lg:text-lg text-gray-200 mb-4"

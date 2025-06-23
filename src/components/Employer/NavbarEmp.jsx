@@ -69,6 +69,11 @@ const NavbarEmp = () => {
                 label: "Add Company",
                 url: "/employer/addcompany",
               },
+              {
+                id: "home",
+                label: "Move to home page",
+                url: "/",
+              }
               // { id: "actions", label: "Actions", icon: "plus" },
             ].map((item) => (
               <li key={item.id}>
