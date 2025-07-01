@@ -6,6 +6,7 @@ const userAxiosInstance = axios.create({
   withCredentials: true,
 });
 
+
 userAxiosInstance.interceptors.request.use(
   (config) => {
     // Build the full URL
